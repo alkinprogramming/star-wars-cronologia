@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historias de Star Wars - Archivos Jedi</title>
+    <style>
+        :root {
+            --bg-color: #0b0e14;
+            --card-bg: #151a23;
+            --card-hover: #1c2331;
+            --text-main: #e0e6ed;
+            --text-muted: #90a4ae;
+            --gold: #f57c00;
+            --sith-red: #e53935;
+            --jedi-blue: #29b6f6;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* BARRA DE NAVEGACIÓN SIMULADA */
+        nav {
+            background-color: rgba(11, 14, 20, 0.95);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            border-bottom: 1px solid #1e2736;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        nav a:hover, nav a:focus-visible {
+            color: var(--gold);
+            outline: 2px dashed var(--gold);
+            outline-offset: 2px;
+        }
+
+        nav a.active {
+            color: var(--gold);
+            border-bottom: 2px solid var(--gold);
+        }
+
+        /* HEADER Y BANNER PRINCIPAL */
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            border-bottom: 3px solid var(--sith-red);
+            position: relative;
+            background-image: url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1920&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(rgba(11, 14, 20, 0.7), rgba(11, 14, 20, 1));
+            z-index: -1;
+        }
+
+        h1 {
+            color: #fff;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin: 0 0 10px 0;
+            font-size: 2.2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-style: italic;
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        /* CONTENEDOR PRINCIPAL */
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* TARJETAS DE HISTORIAS */
+        .story-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            margin-bottom: 40px;
+            border-top: 4px solid var(--sith-red);
+            display: none; /* Ocultas por defecto para el paginador */
+        }
+
+        .story-card.active-page {
+            display: block; /* Solo se muestran las de la página activa */
+        }
+
+        .story-card.jedi-card {
+            border-top-color: var(--jedi-blue);
+        }
+
+        .story-img {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .story-content {
+            padding: 30px;
+        }
+
+        .story-title {
+            font-size: 2rem;
+            color: #fff;
+            margin-top: 0;
+            margin-bottom: 25px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .story-section {
+            margin-bottom: 20px;
+        }
+
+        .story-section h3 {
+            color: var(--gold);
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .story-card.jedi-card .story-section h3 {
+            color: var(--jedi-blue);
+        }
+
+        .story-section h3::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--sith-red);
+            border-radius: 50%;
+        }
+
+        .story-card.jedi-card .story-section h3::before {
+            background-color: var(--jedi-blue);
+        }
+
+        .story-section p {
+            color: var(--text-main);
+            margin: 0;
+            font-size: 1.05rem;
+            padding-left: 18px;
+        }
+
+        /* CITA DESTACADA (Blockquote) */
+        blockquote {
+            background-color: #0f131a;
+            border-left: 5px solid var(--gold);
+            margin: 40px 0 10px 0;
+            padding: 20px 25px;
+            border-radius: 0 8px 8px 0;
+            font-style: italic;
+            color: #fff;
+            font-size: 1.15rem;
+            position: relative;
+        }
+
+        blockquote::before {
+            content: '"';
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            font-size: 4rem;
+            color: rgba(245, 124, 0, 0.2);
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+
+        /* PAGINADOR */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        .page-btn {
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid #2e3b52;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        .page-btn:hover, .page-btn:focus-visible {
+            background-color: var(--card-hover);
+            color: var(--gold);
+            border-color: var(--gold);
+            outline: none;
+        }
+
+        .page-btn.active {
+            background-color: var(--gold);
+            color: #000;
+            border-color: var(--gold);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 0 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid #1e2736;
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 1.6rem; }
+            .subtitle { font-size: 0.95rem; }
+            header { padding: 40px 15px; }
+            
+            nav {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .story-img { height: 200px; }
+            .story-content { padding: 20px 15px; }
+            .story-title { font-size: 1.5rem; }
+            .story-section p { padding-left: 10px; font-size: 1rem; }
+            
+            blockquote {
+                padding: 15px;
+                font-size: 1.05rem;
+                margin: 30px 0 0 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navegación para conectar las páginas -->
+<nav aria-label="Navegación principal">
+    <a href="index.html" aria-label="Ir a la Cronología">Cronología Interactiva</a>
+    <a href="historias.html" class="active" aria-current="page">Historias y Leyendas</a>
+</nav>
+
+<header>
+    <h1>Archivos Jedi</h1>
+    <p class="subtitle">Relatos, mitos y tragedias de una galaxia muy, muy lejana</p>
+</header>
+
+<main class="container">
+    <div id="stories-container">
+        
+        <!-- 1. HISTORIA: ANAKIN -->
+        <article class="story-card" aria-labelledby="story-title-1">
+            <img src="https://placehold.co/800x350/1c2331/e53935?text=Darth+Vader+y+Anakin" alt="Ilustración Anakin" class="story-img">
+            <div class="story-content">
+                <h2 id="story-title-1" class="story-title">La Tragedia y Redención de Anakin</h2>
+                <section class="story-section">
+                    <h3>El Defensor de la Justicia</h3>
+                    <p>Como Caballero Jedi, Anakin vio de primera mano la hipocresía y corrupción moral de una República y un Consejo alejados de sus ideales[cite: 2].</p>
+                </section>
+                <section class="story-section">
+                    <h3>El Precio de la Salvación</h3>
+                    <p>Su caída al lado oscuro fue un acto desesperado de amor y miedo a la pérdida, manipulado minuciosamente por Palpatine[cite: 2].</p>
+                </section>
+                <section class="story-section">
+                    <h3>El Elegido Definitivo</h3>
+                    <p>Al final, es el propio Anakin quien emerge de las cenizas para cumplir su destino: derrotar al Emperador y destruir a los Sith desde adentro[cite: 2].</p>
+                </section>
+                <blockquote>
+                    No se trata solo de un villano que encuentra la redención, sino del héroe trágico que cae, paga el precio más alto y destruye el verdadero mal[cite: 2].
+                </blockquote>
+            </div>
+        </article>
+
+        <!-- 2. HISTORIA: LUKE -->
+        <article class="story-card jedi-card" aria-labelledby="story-title-2">
+            <img src="https://placehold.co/800x350/1c2331/29b6f6?text=El+Mito+de+Luke+Skywalker" alt="Ilustración Luke" class="story-img">
+            <div class="story-content">
+                <h2 id="story-title-2" class="story-title">El Mito de Luke Skywalker: ¿Sobrevalorado?</h2>
+                <section class="story-section">
+                    <h3>Un Entrenamiento Deficiente</h3>
+                    <p>A diferencia de los antiguos Jedi, la preparación formal de Luke fue mínima, dependiendo más de la ayuda externa y la suerte que de su propia maestría[cite: 2].</p>
+                </section>
+                <section class="story-section">
+                    <h3>La Carga de una Leyenda</h3>
+                    <p>La galaxia lo elevó a un estatus mesiánico imposible, ignorando sus debilidades y cargándole con expectativas inalcanzables[cite: 2].</p>
+                </section>
+                <section class="story-section">
+                    <h3>El Fracaso Inevitable</h3>
+                    <p>Su momento de debilidad con Ben Solo demostró que seguía siendo vulnerable al miedo, llevándole a un exilio superado por su propio mito[cite: 2].</p>
+                </section>
+                <blockquote>
+                    Luke Skywalker no fue el salvador perfecto, sino un hombre ordinario aplastado por el inmenso peso de una leyenda inalcanzable[cite: 2].
+                </blockquote>
+            </div>
+        </article>
+
+        <!-- 3. HISTORIA: AHSOKA -->
+        <article class="story-card jedi-card" aria-labelledby="story-title-3">
+            <img src="https://placehold.co/800x350/1c2331/29b6f6?text=Ahsoka+Tano" alt="Ilustración Ahsoka" class="story-img">
+            <div class="story-content">
+                <h2 id="story-title-3" class="story-title">Ahsoka Tano: La Sombra de la Orden</h2>
+                <section class="story-section">
+                    <h3>La Padawan Injustamente Acusada</h3>
+                    <p>El abandono de la Orden Jedi por parte de Ahsoka, tras ser traicionada por el propio sistema que juró proteger, marcó el quiebre moral definitivo de Anakin.</p>
+                </section>
+                <section class="story-section">
+                    <h3>La Buscadora de Equilibrio</h3>
+                    <p>Al rechazar tanto las estrictas normas Jedi como las cadenas del Lado Oscuro, Ahsoka se convirtió en un faro de resistencia y una guerrera libre de dogmas.</p>
+                </section>
+                <section class="story-section">
+                    <h3>El Legado del Maestro</h3>
+                    <p>Sobrevivir a la Purga y enfrentarse a su antiguo maestro convertido en Vader consolidó su eterno dolor, pero también su absoluta resiliencia.</p>
+                </section>
+                <blockquote>
+                    No soy una Jedi. Pero mi lealtad sigue estando con la luz y con aquellos que no pueden defenderse.
+                </blockquote>
+            </div>
+        </article>
+
+        <!-- 4. HISTORIA: DOOKU -->
+        <article class="story-card" aria-labelledby="story-title-4">
+            <img src="https://placehold.co/800x350/1c2331/e53935?text=Conde+Dooku" alt="Ilustración Dooku" class="story-img">
+            <div class="story-content">
+                <h2 id="story-title-4" class="story-title">Conde Dooku: La Nobleza Caída</h2>
+                <section class="story-section">
+                    <h3>El Filósofo Desilusionado</h3>
+                    <p>Dooku vio la hipocresía de la República mucho antes que Anakin, utilizando sus ideales políticos legítimos como puerta de entrada a su manipulación por Sidious.</p>
+                </section>
+                <section class="story-section">
+                    <h3>El Conde de Serenno</h3>
+                    <p>Su elegancia y destreza con el Makashi ocultaban una profunda frustración ante la incapacidad del Senado para frenar la corrupción galáctica.</p>
+                </section>
+                <section class="story-section">
+                    <h3>El Peón Desechable</h3>
+                    <p>Al igual que otros antes que él, Dooku creía gobernar la galaxia junto al Lord Sith, ignorando que solo era una pieza transitoria en un tablero mayor.</p>
+                </section>
+                <blockquote>
+                    La República ya está muerta. Solo hace falta alguien con la fuerza necesaria para barrer sus cenizas y construir orden.
+                </blockquote>
+            </div>
+        </article>
+
+        <!-- 5. HISTORIA: MANDALORE -->
+        <article class="story-card jedi-card" aria-labelledby="story-title-5">
+            <img src="https://placehold.co/800x350/1c2331/29b6f6?text=Mandalore" alt="Ilustración Mandalore" class="story-img">
+            <div class="story-content">
+                <h2 id="story-title-5" class="story-title">El Credo y las Cenizas de Mandalore</h2>
+                <section class="story-section">
+                    <h3>De Guerreros a Supervivientes</h3>
+                    <p>Un planeta marcado por las guerras civiles que debió transicionar de la gloria imperialista del pasado a una cultura de clanes basada en el honor y el asilo.</p>
+                </section>
+                <section class="story-section">
+                    <h3>El Casco Inquebrantable</h3>
+                    <p>La máxima de que "el camino es este" unifica a un pueblo fragmentado por purgas imperiales y divisiones sectarias bajo una misma identidad colectiva.</p>
+                </section>
+                <section class="story-section">
+                    <h3>La Gran Purga</h3>
+                    <p>El bombardeo imperial sobre el planeta simbolizó la crueldad del Imperio al no poder someter el espíritu libre de su gente.</p>
+                </section>
+                <blockquote>
+                    Mandalore sobrevivirá mientras quede un solo guerrero dispuesto a proteger a los suyos bajo el Credo.
+                </blockquote>
+            </div>
+        </article>
+
+        <!-- 6. HISTORIA: THRAWN -->
+        <article class="story-card" aria-labelledby="story-title-6">
+            <img src="https://placehold.co/800x350/1c2331/e53935?text=Gran+Almirante+Thrawn" alt="Ilustración Thrawn" class="story-img">
+            <div class="story-content">
+                <h2 id="story-title-6" class="story-title">El Genio Táctico del Gran Almirante Thrawn</h2>
+                <section class="story-section">
+                    <h3>Estudio del Arte y la Cultura</h3>
+                    <p>Thrawn comprendía a sus enemigos mejor que nadie analizando su psicología a través de su expresión artística, anticipando cada uno de sus movimientos.</p>
+                </section>
+                <section class="story-section">
+                    <h3>El Extranjero en el Imperio</h3>
+                    <p>A pesar del especismo reinante en el alto mando imperial, su talento militar absoluto lo catapultó a la cima de la jerarquía galáctica.</p>
+                </section>
+                <section class="story-section">
+                    <h3>El Heredero</h3>
+                    <p>Su visión a largo plazo trascendía la simple opresión imperial; buscaba la estabilidad total de la galaxia ante amenazas mayores procedentes de las Regiones Desconocidas.</p>
+                </section>
+                <blockquote>
+                    Para derrotar a tu enemigo, debes conocerlo íntimamente, comprender lo que valora y prever su siguiente paso antes de que él mismo lo sepa.
+                </blockquote>
+            </div>
+        </article>
+
+    </div>
+
+    <!-- CONTROLES DEL PAGINADOR -->
+    <div class="pagination" id="pagination-controls" aria-label="Paginación de historias">
+        <!-- Generado dinámicamente por JavaScript -->
+    </div>
+</main>
+
+<footer>
+    <p>Que la Fuerza te acompañe.</p>
+</footer>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const cards = document.querySelectorAll(".story-card");
+        const paginationContainer = document.getElementById("pagination-controls");
+        const itemsPerPage = 3; // Límite de 3 historias por página[cite: 2]
+        let currentPage = 1;
+
+        const totalPages = Math.ceil(cards.length / itemsPerPage);
+
+        function showPage(page) {
+            currentPage = page;
+            const start = (page - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+
+            cards.forEach((card, index) => {
+                if (index >= start && index < end) {
+                    card.classList.add("active-page");
+                } else {
+                    card.classList.remove("active-page");
+                }
+            });
+
+            renderPaginationButtons();
+            
+            // Opcional: Desplazar suavemente hacia arriba al cambiar de página
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderPaginationButtons() {
+            paginationContainer.innerHTML = "";
+
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement("button");
+                btn.textContent = i;
+                btn.className = `page-btn ${i === currentPage ? "active" : ""}`;
+                btn.setAttribute("aria-label", `Ir a la página ${i}`);
+                
+                btn.addEventListener("click", () => {
+                    showPage(i);
+                });
+
+                paginationContainer.appendChild(btn);
+            }
+        }
+
+        // Inicializar la primera página
+        if (totalPages > 0) {
+            showPage(1);
+        }
+    });
+</script>
+
+</body>
+</html>
