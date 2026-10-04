@@ -3,493 +3,1817 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historias de Star Wars - Archivos Jedi</title>
+    <title>Archivos Jedi — La Enciclopedia de Star Wars</title>
+    <meta name="description" content="Explora las historias, personajes, cronología y secretos de una galaxia muy, muy lejana.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&family=Michroma&display=swap" rel="stylesheet">
     <style>
+        /* ============================================
+           VARIABLES Y RESET
+           ============================================ */
         :root {
-            --bg-color: #0b0e14;
-            --card-bg: #151a23;
-            --card-hover: #1c2331;
-            --text-main: #e0e6ed;
-            --text-muted: #90a4ae;
-            --gold: #f57c00;
+            --bg-primary: #05080f;
+            --bg-secondary: #0b0e14;
+            --bg-card: #111827;
+            --bg-card-hover: #1a2235;
+            --bg-elevated: #161e2e;
+            --text-primary: #e8edf5;
+            --text-secondary: #8b9bb4;
+            --text-dim: #5a6a80;
+            --gold: #f5a623;
+            --gold-light: #ffc107;
             --sith-red: #e53935;
+            --sith-red-glow: rgba(229, 57, 53, 0.6);
             --jedi-blue: #29b6f6;
+            --jedi-blue-glow: rgba(41, 182, 246, 0.6);
+            --jedi-green: #66bb6a;
+            --purple: #ab47bc;
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-glow: rgba(245, 166, 35, 0.3);
+            --font-display: 'Orbitron', sans-serif;
+            --font-body: 'Inter', 'Segoe UI', sans-serif;
+            --font-accent: 'Michroma', sans-serif;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+            --shadow-glow: 0 0 30px rgba(245, 166, 35, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * {
+        *,
+        *::before,
+        *::after {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
+            font-family: var(--font-body);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* BARRA DE NAVEGACIÓN SIMULADA */
-        nav {
-            background-color: rgba(11, 14, 20, 0.95);
-            padding: 15px 20px;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            border-bottom: 1px solid #1e2736;
-            position: sticky;
+        /* ============================================
+           ESTRELLAS DE FONDO ANIMADAS
+           ============================================ */
+        .starfield {
+            position: fixed;
             top: 0;
-            z-index: 100;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
         }
 
-        nav a {
-            color: var(--text-muted);
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 4s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.1; transform: scale(0.8); }
+            50% { opacity: 0.8; transform: scale(1.2); }
+        }
+
+        /* ============================================
+           BARRA DE NAVEGACIÓN
+           ============================================ */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(5, 8, 15, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+            transition: var(--transition);
+        }
+
+        .navbar.scrolled {
+            background: rgba(5, 8, 15, 0.95);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 68px;
+        }
+
+        .nav-logo {
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: 1.1rem;
+            color: var(--gold);
             text-decoration: none;
-            font-weight: bold;
+            letter-spacing: 2px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.9rem;
-            transition: color 0.3s;
-            padding: 5px 10px;
-            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
         }
 
-        nav a:hover, nav a:focus-visible {
-            color: var(--gold);
-            outline: 2px dashed var(--gold);
-            outline-offset: 2px;
+        .nav-logo:hover {
+            text-shadow: 0 0 20px var(--gold);
         }
 
-        nav a.active {
-            color: var(--gold);
-            border-bottom: 2px solid var(--gold);
-        }
-
-        /* HEADER Y BANNER PRINCIPAL */
-        header {
-            text-align: center;
-            padding: 60px 20px;
-            border-bottom: 3px solid var(--sith-red);
+        .nav-logo .logo-icon {
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
             position: relative;
-            background-image: url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1920&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
+        }
+
+        .nav-logo .logo-icon::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 1px solid rgba(245, 166, 35, 0.3);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a:hover,
+        .nav-links a:focus-visible {
+            color: var(--gold);
+            background: rgba(245, 166, 35, 0.08);
+            outline: none;
+        }
+
+        .nav-links a.active {
+            color: var(--gold);
+            background: rgba(245, 166, 35, 0.1);
+        }
+
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 2px;
+            background: var(--gold);
+            border-radius: 1px;
+            box-shadow: 0 0 8px var(--gold);
+        }
+
+        /* Menú móvil */
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 68px; left: 0; right: 0;
+                background: rgba(11, 14, 20, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                padding: 16px;
+                gap: 4px;
+                border-bottom: 1px solid #1e2736;
+            }
+            .nav-links.open { display: flex; }
+            .nav-links a { width: 100%; text-align: center; padding: 12px; }
+            .nav-toggle { display: block; }
+        }
+
+        /* ============================================
+           HERO / BANNER PRINCIPAL
+           ============================================ */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 24px 80px;
+            overflow: hidden;
             z-index: 1;
         }
 
-        header::before {
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background-image: url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1920&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.25;
+        }
+
+        .hero::after {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(rgba(11, 14, 20, 0.7), rgba(11, 14, 20, 1));
-            z-index: -1;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 0%, var(--bg-primary) 75%);
+            pointer-events: none;
         }
 
-        h1 {
-            color: #fff;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin: 0 0 10px 0;
-            font-size: 2.2rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-        }
-
-        .subtitle {
-            color: var(--text-muted);
-            font-style: italic;
-            margin: 0;
-            font-size: 1.1rem;
-        }
-
-        /* CONTENEDOR PRINCIPAL */
-        .container {
+        .hero-content {
+            position: relative;
+            z-index: 2;
             max-width: 800px;
-            margin: 40px auto;
-            padding: 0 20px;
         }
 
-        /* TARJETAS DE HISTORIAS */
-        .story-card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(245, 166, 35, 0.1);
+            border: 1px solid rgba(245, 166, 35, 0.3);
+            color: var(--gold);
+            padding: 6px 18px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 28px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero-badge .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--gold);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            animation: fadeInUp 0.8s ease-out 0.15s both;
+            text-shadow: 0 0 40px rgba(245, 166, 35, 0.3);
+        }
+
+        .hero-title .highlight {
+            color: var(--gold);
+            display: block;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: var(--text-secondary);
+            font-weight: 300;
             margin-bottom: 40px;
-            border-top: 4px solid var(--sith-red);
-            display: none; /* Ocultas por defecto para el paginador */
+            animation: fadeInUp 0.8s ease-out 0.3s both;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease-out 0.45s both;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold), #e65100);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(245, 166, 35, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(245, 166, 35, 0.15);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            animation: bounce 2s infinite;
+        }
+
+        .scroll-indicator span {
+            display: block;
+            width: 24px;
+            height: 24px;
+            border-right: 2px solid var(--text-dim);
+            border-bottom: 2px solid var(--text-dim);
+            transform: rotate(45deg);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        /* ============================================
+           SECCIONES
+           ============================================ */
+        .section {
+            position: relative;
+            z-index: 1;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 100px 24px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-label {
+            font-family: var(--font-accent);
+            font-size: 0.75rem;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 700;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+
+        .section-desc {
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        .section-divider {
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), transparent);
+            margin: 20px auto 0;
+            border-radius: 2px;
+        }
+
+        /* ============================================
+           TARJETAS DE HISTORIAS (REDISEÑADAS)
+           ============================================ */
+        .stories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 28px;
+        }
+
+        .story-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+            transition: var(--transition);
+            position: relative;
+            display: none;
         }
 
         .story-card.active-page {
-            display: block; /* Solo se muestran las de la página activa */
+            display: flex;
+            flex-direction: column;
+            animation: cardAppear 0.5s ease-out;
+        }
+
+        @keyframes cardAppear {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .story-card:hover {
+            border-color: var(--border-glow);
+            box-shadow: var(--shadow-glow);
+            transform: translateY(-6px);
+        }
+
+        .story-card.sith-card {
+            border-top: 3px solid var(--sith-red);
         }
 
         .story-card.jedi-card {
-            border-top-color: var(--jedi-blue);
+            border-top: 3px solid var(--jedi-blue);
+        }
+
+        .story-card.neutral-card {
+            border-top: 3px solid var(--gold);
+        }
+
+        .story-card.purple-card {
+            border-top: 3px solid var(--purple);
+        }
+
+        .story-img-wrapper {
+            position: relative;
+            height: 220px;
+            overflow: hidden;
         }
 
         .story-img {
             width: 100%;
-            height: 350px;
+            height: 100%;
             object-fit: cover;
             display: block;
+            transition: transform 0.6s ease;
+        }
+
+        .story-card:hover .story-img {
+            transform: scale(1.08);
+        }
+
+        .story-img-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, var(--bg-card) 0%, transparent 60%);
+        }
+
+        .story-faction {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            backdrop-filter: blur(10px);
+        }
+
+        .story-faction.sith {
+            background: rgba(229, 57, 53, 0.2);
+            color: #ff8a80;
+            border: 1px solid rgba(229, 57, 53, 0.4);
+        }
+
+        .story-faction.jedi {
+            background: rgba(41, 182, 246, 0.2);
+            color: #81d4fa;
+            border: 1px solid rgba(41, 182, 246, 0.4);
+        }
+
+        .story-faction.neutral {
+            background: rgba(245, 166, 35, 0.2);
+            color: #ffd54f;
+            border: 1px solid rgba(245, 166, 35, 0.4);
         }
 
         .story-content {
-            padding: 30px;
+            padding: 24px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .story-title {
-            font-size: 2rem;
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 700;
             color: #fff;
-            margin-top: 0;
-            margin-bottom: 25px;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .story-excerpt {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin-bottom: 16px;
+            flex: 1;
+        }
+
+        .story-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-subtle);
+            font-size: 0.78rem;
+            color: var(--text-dim);
+        }
+
+        .story-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .story-meta-item .icon {
+            width: 14px;
+            height: 14px;
+            opacity: 0.6;
+        }
+
+        /* ============================================
+           PAGINACIÓN
+           ============================================ */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 48px;
+            flex-wrap: wrap;
+        }
+
+        .page-btn {
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: var(--font-body);
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: var(--transition);
+            min-width: 44px;
+        }
+
+        .page-btn:hover {
+            background: var(--bg-card-hover);
+            color: var(--gold);
+            border-color: rgba(245, 166, 35, 0.4);
+        }
+
+        .page-btn.active {
+            background: linear-gradient(135deg, var(--gold), #e65100);
+            color: #000;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(245, 166, 35, 0.3);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            padding: 0 12px;
+        }
+
+        /* ============================================
+           SECCIÓN DE PERSONAJES (TARJETAS)
+           ============================================ */
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .character-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 28px 20px;
             text-align: center;
+            border: 1px solid var(--border-subtle);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .character-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--character-color, var(--gold));
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .character-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .character-card:hover::before {
+            opacity: 1;
+        }
+
+        .character-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            font-family: var(--font-display);
+            position: relative;
+        }
+
+        .character-avatar::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid var(--character-color, var(--gold));
+            opacity: 0.4;
+        }
+
+        .character-name {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .character-role {
+            font-size: 0.75rem;
+            color: var(--text-dim);
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
-        .story-section {
-            margin-bottom: 20px;
-        }
-
-        .story-section h3 {
-            color: var(--gold);
-            font-size: 1.2rem;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .story-card.jedi-card .story-section h3 {
-            color: var(--jedi-blue);
-        }
-
-        .story-section h3::before {
-            content: "";
+        .character-status {
             display: inline-block;
-            width: 8px;
-            height: 8px;
-            background-color: var(--sith-red);
-            border-radius: 50%;
+            margin-top: 12px;
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .story-card.jedi-card .story-section h3::before {
-            background-color: var(--jedi-blue);
+        .character-status.alive {
+            background: rgba(102, 187, 106, 0.15);
+            color: var(--jedi-green);
         }
 
-        .story-section p {
-            color: var(--text-main);
-            margin: 0;
-            font-size: 1.05rem;
-            padding-left: 18px;
+        .character-status.dead {
+            background: rgba(229, 57, 53, 0.15);
+            color: var(--sith-red);
         }
 
-        /* CITA DESTACADA (Blockquote) */
-        blockquote {
-            background-color: #0f131a;
-            border-left: 5px solid var(--gold);
-            margin: 40px 0 10px 0;
-            padding: 20px 25px;
-            border-radius: 0 8px 8px 0;
-            font-style: italic;
-            color: #fff;
-            font-size: 1.15rem;
+        .character-status.unknown {
+            background: rgba(139, 155, 180, 0.15);
+            color: var(--text-secondary);
+        }
+
+        /* ============================================
+           LÍNEA TEMPORAL / CRONOLOGÍA
+           ============================================ */
+        .timeline {
             position: relative;
+            padding-left: 40px;
         }
 
-        blockquote::before {
-            content: '"';
+        .timeline::before {
+            content: '';
             position: absolute;
-            top: -10px;
-            left: 10px;
-            font-size: 4rem;
-            color: rgba(245, 124, 0, 0.2);
-            font-family: Georgia, serif;
-            line-height: 1;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--gold), var(--sith-red), var(--jedi-blue), transparent);
         }
 
-        /* PAGINADOR */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 40px;
+        .timeline-item {
+            position: relative;
+            margin-bottom: 40px;
+            padding-left: 20px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -40px;
+            top: 6px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            border: 3px solid var(--timeline-color, var(--gold));
+            box-shadow: 0 0 12px var(--timeline-color, var(--gold));
+        }
+
+        .timeline-era {
+            font-family: var(--font-accent);
+            font-size: 0.7rem;
+            color: var(--timeline-color, var(--gold));
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 6px;
+        }
+
+        .timeline-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .timeline-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .timeline-item:nth-child(1) .timeline-item { --timeline-color: #64b5f6; }
+        .timeline-item:nth-child(2) .timeline-item { --timeline-color: #ba68c8; }
+        .timeline-item:nth-child(3) .timeline-item { --timeline-color: #ffd54f; }
+        .timeline-item:nth-child(4) .timeline-item { --timeline-color: #ef5350; }
+        .timeline-item:nth-child(5) .timeline-item { --timeline-color: #4db6ac; }
+        .timeline-item:nth-child(6) .timeline-item { --timeline-color: #ff8a65; }
+
+        /* ============================================
+           ESTADÍSTICAS
+           ============================================ */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-top: 48px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 28px 20px;
+            text-align: center;
+            border: 1px solid var(--border-subtle);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-4px);
+        }
+
+        .stat-number {
+            font-family: var(--font-display);
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--gold);
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        /* ============================================
+           CITA DESTACADA
+           ============================================ */
+        .quote-block {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 48px 40px;
+            text-align: center;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            overflow: hidden;
+        }
+
+        .quote-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        .quote-text {
+            font-family: var(--font-accent);
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            color: #fff;
+            line-height: 1.8;
+            font-style: italic;
             margin-bottom: 20px;
         }
 
-        .page-btn {
-            background-color: var(--card-bg);
-            color: var(--text-main);
-            border: 1px solid #2e3b52;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-        }
-
-        .page-btn:hover, .page-btn:focus-visible {
-            background-color: var(--card-hover);
+        .quote-author {
+            font-family: var(--font-display);
+            font-size: 0.8rem;
             color: var(--gold);
-            border-color: var(--gold);
-            outline: none;
+            text-transform: uppercase;
+            letter-spacing: 3px;
         }
 
-        .page-btn.active {
-            background-color: var(--gold);
-            color: #000;
-            border-color: var(--gold);
+        /* ============================================
+           SABLES DE LUZ DECORATIVOS
+           ============================================ */
+        .lightsaber-container {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.15;
         }
 
-        footer {
-            text-align: center;
-            padding: 40px 0 20px;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            border-top: 1px solid #1e2736;
+        .lightsaber {
+            width: 3px;
+            height: 200px;
+            border-radius: 3px;
+            position: relative;
+            animation: saberGlow 3s ease-in-out infinite alternate;
         }
 
-        @media (max-width: 600px) {
-            h1 { font-size: 1.6rem; }
-            .subtitle { font-size: 0.95rem; }
-            header { padding: 40px 15px; }
-            
-            nav {
+        .lightsaber::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 40px;
+            background: #333;
+            border-radius: 0 0 4px 4px;
+        }
+
+        .lightsaber.blue {
+            background: linear-gradient(to bottom, transparent, var(--jedi-blue), transparent);
+            box-shadow: 0 0 20px var(--jedi-blue), 0 0 60px var(--jedi-blue-glow);
+        }
+
+        .lightsaber.red {
+            background: linear-gradient(to bottom, transparent, var(--sith-red), transparent);
+            box-shadow: 0 0 20px var(--sith-red), 0 0 60px var(--sith-red-glow);
+        }
+
+        @keyframes saberGlow {
+            0% { opacity: 0.6; transform: scaleY(1); }
+            100% { opacity: 1; transform: scaleY(1.05); }
+        }
+
+        /* ============================================
+           FOOTER
+           ============================================ */
+        .footer {
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid var(--border-subtle);
+            padding: 60px 24px 30px;
+            background: linear-gradient(to bottom, transparent, rgba(5, 8, 15, 0.95));
+        }
+
+        .footer-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-brand {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 900;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+
+        .footer-desc {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            line-height: 1.7;
+        }
+
+        .footer-heading {
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--gold);
+            padding-left: 4px;
+        }
+
+        .footer-bottom {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .footer-bottom p {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+
+        .footer-force {
+            color: var(--gold);
+            font-family: var(--font-accent);
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 900px) {
+            .stories-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 68px;
+                left: 0;
+                right: 0;
+                background: rgba(5, 8, 15, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                padding: 16px;
+                gap: 4px;
+                border-bottom: 1px solid var(--border-subtle);
+            }
+
+            .nav-links.open {
+                display: flex;
+            }
+
+            .nav-links a {
+                width: 100%;
+                text-align: center;
+                padding: 12px;
+            }
+
+            .nav-toggle {
+                display: block;
+            }
+
+            .section {
+                padding: 70px 16px;
+            }
+
+            .hero {
+                min-height: 90vh;
+                padding: 100px 16px 60px;
+            }
+
+            .hero-actions {
                 flex-direction: column;
                 align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+
+            .characters-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .character-card {
+                padding: 20px 12px;
+            }
+
+            .character-avatar {
+                width: 56px;
+                height: 56px;
+                font-size: 1.3rem;
+            }
+
+            .timeline {
+                padding-left: 24px;
+            }
+
+            .timeline-item::before {
+                left: -24px;
+                width: 14px;
+                height: 14px;
+            }
+
+            .quote-block {
+                padding: 32px 20px;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .characters-grid {
+                grid-template-columns: 1fr 1fr;
                 gap: 10px;
             }
 
-            .story-img { height: 200px; }
-            .story-content { padding: 20px 15px; }
-            .story-title { font-size: 1.5rem; }
-            .story-section p { padding-left: 10px; font-size: 1rem; }
-            
-            blockquote {
-                padding: 15px;
-                font-size: 1.05rem;
-                margin: 30px 0 0 0;
+            .character-name {
+                font-size: 0.72rem;
             }
+
+            .character-role {
+                font-size: 0.65rem;
+            }
+        }
+
+        /* ============================================
+           ACCESIBILIDAD
+           ============================================ */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        :focus-visible {
+            outline: 2px solid var(--gold);
+            outline-offset: 3px;
+        }
+
+        ::selection {
+            background: var(--gold);
+            color: #000;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #2a3548;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3a4a62;
+        }
+        /* Enlace externo hacia la Cronología */
+        .nav-links a.nav-external {
+            color: var(--jedi-blue);
+            border: 1px solid rgba(41, 182, 246, 0.3);
+            background: rgba(41, 182, 246, 0.06);
+        }
+        .nav-links a.nav-external:hover {
+            color: #fff;
+            background: rgba(41, 182, 246, 0.18);
+            border-color: var(--jedi-blue);
+            box-shadow: 0 0 15px rgba(41, 182, 246, 0.3);
         }
     </style>
 </head>
 <body>
 
-<!-- Navegación para conectar las páginas -->
-<nav aria-label="Navegación principal">
-    <a href="index.html" aria-label="Ir a la Cronología">Cronología Interactiva</a>
-    <a href="historias.html" class="active" aria-current="page">Historias y Leyendas</a>
+<!-- Campo de estrellas animado -->
+<div class="starfield" id="starfield" aria-hidden="true"></div>
+
+<!-- Sables de luz decorativos -->
+<div class="lightsaber-container" style="top: 20%; left: 5%;" aria-hidden="true">
+    <div class="lightsaber blue"></div>
+</div>
+<div class="lightsaber-container" style="top: 60%; right: 5%;" aria-hidden="true">
+    <div class="lightsaber red"></div>
+</div>
+
+<!-- ============================================
+     BARRA DE NAVEGACIÓN
+     ============================================ -->
+<nav class="navbar" id="navbar" aria-label="Navegación principal">
+    <div class="nav-container">
+        <a href="#" class="nav-logo" aria-label="Archivos Jedi - Inicio">
+            <span class="logo-icon">✦</span>
+            Archivos Jedi
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+            ☰
+        </button>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html" class="nav-external">← Cronología</a></li>
+            <li><a href="#inicio" class="active">Inicio</a></li>
+            <li><a href="#historias">Historias</a></li>
+            <li><a href="#personajes">Personajes</a></li>
+            <li><a href="#recursos">Recursos</a></li>
+        </ul>
+    </div>
 </nav>
 
-<header>
-    <h1>Archivos Jedi</h1>
-    <p class="subtitle">Relatos, mitos y tragedias de una galaxia muy, muy lejana</p>
+<!-- ============================================
+     HERO / BANNER
+     ============================================ -->
+<header class="hero" id="inicio">
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="hero-content">
+        <div class="hero-badge">
+            <span class="dot"></span>
+            Que la Fuerza te acompañe
+        </div>
+        <h1 class="hero-title">
+            Archivos
+            <span class="highlight">Jedi</span>
+        </h1>
+        <p class="hero-subtitle">
+            Explora las historias, personajes, cronología y secretos de una galaxia muy, muy lejana. La enciclopedia definitiva para todo fan de Star Wars.
+        </p>
+        <div class="hero-actions">
+            <a href="#historias" class="btn btn-primary">
+                Explorar Historias
+            </a>
+            <a href="#cronologia" class="btn btn-outline">
+                Ver Cronología
+            </a>
+        </div>
+    </div>
+    <div class="scroll-indicator" aria-hidden="true">
+        <span></span>
+    </div>
 </header>
 
-<main class="container">
+<!-- ============================================
+     SECCIÓN DE HISTORIAS
+     ============================================ -->
+<section class="section" id="historias">
+    <div class="section-header">
+        <span class="section-label">Archivos Clasificados</span>
+        <h2 class="section-title">Historias y Leyendas</h2>
+        <p class="section-desc">
+            Relatos de héroes, villanos y tragedias que definieron el destino de la galaxia.
+        </p>
+        <div class="section-divider"></div>
+    </div>
+
     <div id="stories-container">
-        
-        <!-- 1. HISTORIA: ANAKIN -->
-        <article class="story-card" aria-labelledby="story-title-1">
-            <img src="https://placehold.co/800x350/1c2331/e53935?text=Darth+Vader+y+Anakin" alt="Ilustración Anakin" class="story-img">
-            <div class="story-content">
-                <h2 id="story-title-1" class="story-title">La Tragedia y Redención de Anakin</h2>
-                <section class="story-section">
-                    <h3>El Defensor de la Justicia</h3>
-                    <p>Como Caballero Jedi, Anakin vio de primera mano la hipocresía y corrupción moral de una República y un Consejo alejados de sus ideales[cite: 2].</p>
-                </section>
-                <section class="story-section">
-                    <h3>El Precio de la Salvación</h3>
-                    <p>Su caída al lado oscuro fue un acto desesperado de amor y miedo a la pérdida, manipulado minuciosamente por Palpatine[cite: 2].</p>
-                </section>
-                <section class="story-section">
-                    <h3>El Elegido Definitivo</h3>
-                    <p>Al final, es el propio Anakin quien emerge de las cenizas para cumplir su destino: derrotar al Emperador y destruir a los Sith desde adentro[cite: 2].</p>
-                </section>
-                <blockquote>
-                    No se trata solo de un villano que encuentra la redención, sino del héroe trágico que cae, paga el precio más alto y destruye el verdadero mal[cite: 2].
-                </blockquote>
-            </div>
-        </article>
-
-        <!-- 2. HISTORIA: LUKE -->
-        <article class="story-card jedi-card" aria-labelledby="story-title-2">
-            <img src="https://placehold.co/800x350/1c2331/29b6f6?text=El+Mito+de+Luke+Skywalker" alt="Ilustración Luke" class="story-img">
-            <div class="story-content">
-                <h2 id="story-title-2" class="story-title">El Mito de Luke Skywalker: ¿Sobrevalorado?</h2>
-                <section class="story-section">
-                    <h3>Un Entrenamiento Deficiente</h3>
-                    <p>A diferencia de los antiguos Jedi, la preparación formal de Luke fue mínima, dependiendo más de la ayuda externa y la suerte que de su propia maestría[cite: 2].</p>
-                </section>
-                <section class="story-section">
-                    <h3>La Carga de una Leyenda</h3>
-                    <p>La galaxia lo elevó a un estatus mesiánico imposible, ignorando sus debilidades y cargándole con expectativas inalcanzables[cite: 2].</p>
-                </section>
-                <section class="story-section">
-                    <h3>El Fracaso Inevitable</h3>
-                    <p>Su momento de debilidad con Ben Solo demostró que seguía siendo vulnerable al miedo, llevándole a un exilio superado por su propio mito[cite: 2].</p>
-                </section>
-                <blockquote>
-                    Luke Skywalker no fue el salvador perfecto, sino un hombre ordinario aplastado por el inmenso peso de una leyenda inalcanzable[cite: 2].
-                </blockquote>
-            </div>
-        </article>
-
-        <!-- 3. HISTORIA: AHSOKA -->
-        <article class="story-card jedi-card" aria-labelledby="story-title-3">
-            <img src="https://placehold.co/800x350/1c2331/29b6f6?text=Ahsoka+Tano" alt="Ilustración Ahsoka" class="story-img">
-            <div class="story-content">
-                <h2 id="story-title-3" class="story-title">Ahsoka Tano: La Sombra de la Orden</h2>
-                <section class="story-section">
-                    <h3>La Padawan Injustamente Acusada</h3>
-                    <p>El abandono de la Orden Jedi por parte de Ahsoka, tras ser traicionada por el propio sistema que juró proteger, marcó el quiebre moral definitivo de Anakin.</p>
-                </section>
-                <section class="story-section">
-                    <h3>La Buscadora de Equilibrio</h3>
-                    <p>Al rechazar tanto las estrictas normas Jedi como las cadenas del Lado Oscuro, Ahsoka se convirtió en un faro de resistencia y una guerrera libre de dogmas.</p>
-                </section>
-                <section class="story-section">
-                    <h3>El Legado del Maestro</h3>
-                    <p>Sobrevivir a la Purga y enfrentarse a su antiguo maestro convertido en Vader consolidó su eterno dolor, pero también su absoluta resiliencia.</p>
-                </section>
-                <blockquote>
-                    No soy una Jedi. Pero mi lealtad sigue estando con la luz y con aquellos que no pueden defenderse.
-                </blockquote>
-            </div>
-        </article>
-
-        <!-- 4. HISTORIA: DOOKU -->
-        <article class="story-card" aria-labelledby="story-title-4">
-            <img src="https://placehold.co/800x350/1c2331/e53935?text=Conde+Dooku" alt="Ilustración Dooku" class="story-img">
-            <div class="story-content">
-                <h2 id="story-title-4" class="story-title">Conde Dooku: La Nobleza Caída</h2>
-                <section class="story-section">
-                    <h3>El Filósofo Desilusionado</h3>
-                    <p>Dooku vio la hipocresía de la República mucho antes que Anakin, utilizando sus ideales políticos legítimos como puerta de entrada a su manipulación por Sidious.</p>
-                </section>
-                <section class="story-section">
-                    <h3>El Conde de Serenno</h3>
-                    <p>Su elegancia y destreza con el Makashi ocultaban una profunda frustración ante la incapacidad del Senado para frenar la corrupción galáctica.</p>
-                </section>
-                <section class="story-section">
-                    <h3>El Peón Desechable</h3>
-                    <p>Al igual que otros antes que él, Dooku creía gobernar la galaxia junto al Lord Sith, ignorando que solo era una pieza transitoria en un tablero mayor.</p>
-                </section>
-                <blockquote>
-                    La República ya está muerta. Solo hace falta alguien con la fuerza necesaria para barrer sus cenizas y construir orden.
-                </blockquote>
-            </div>
-        </article>
-
-        <!-- 5. HISTORIA: MANDALORE -->
-        <article class="story-card jedi-card" aria-labelledby="story-title-5">
-            <img src="https://placehold.co/800x350/1c2331/29b6f6?text=Mandalore" alt="Ilustración Mandalore" class="story-img">
-            <div class="story-content">
-                <h2 id="story-title-5" class="story-title">El Credo y las Cenizas de Mandalore</h2>
-                <section class="story-section">
-                    <h3>De Guerreros a Supervivientes</h3>
-                    <p>Un planeta marcado por las guerras civiles que debió transicionar de la gloria imperialista del pasado a una cultura de clanes basada en el honor y el asilo.</p>
-                </section>
-                <section class="story-section">
-                    <h3>El Casco Inquebrantable</h3>
-                    <p>La máxima de que "el camino es este" unifica a un pueblo fragmentado por purgas imperiales y divisiones sectarias bajo una misma identidad colectiva.</p>
-                </section>
-                <section class="story-section">
-                    <h3>La Gran Purga</h3>
-                    <p>El bombardeo imperial sobre el planeta simbolizó la crueldad del Imperio al no poder someter el espíritu libre de su gente.</p>
-                </section>
-                <blockquote>
-                    Mandalore sobrevivirá mientras quede un solo guerrero dispuesto a proteger a los suyos bajo el Credo.
-                </blockquote>
-            </div>
-        </article>
-
-        <!-- 6. HISTORIA: THRAWN -->
-        <article class="story-card" aria-labelledby="story-title-6">
-            <img src="https://placehold.co/800x350/1c2331/e53935?text=Gran+Almirante+Thrawn" alt="Ilustración Thrawn" class="story-img">
-            <div class="story-content">
-                <h2 id="story-title-6" class="story-title">El Genio Táctico del Gran Almirante Thrawn</h2>
-                <section class="story-section">
-                    <h3>Estudio del Arte y la Cultura</h3>
-                    <p>Thrawn comprendía a sus enemigos mejor que nadie analizando su psicología a través de su expresión artística, anticipando cada uno de sus movimientos.</p>
-                </section>
-                <section class="story-section">
-                    <h3>El Extranjero en el Imperio</h3>
-                    <p>A pesar del especismo reinante en el alto mando imperial, su talento militar absoluto lo catapultó a la cima de la jerarquía galáctica.</p>
-                </section>
-                <section class="story-section">
-                    <h3>El Heredero</h3>
-                    <p>Su visión a largo plazo trascendía la simple opresión imperial; buscaba la estabilidad total de la galaxia ante amenazas mayores procedentes de las Regiones Desconocidas.</p>
-                </section>
-                <blockquote>
-                    Para derrotar a tu enemigo, debes conocerlo íntimamente, comprender lo que valora y prever su siguiente paso antes de que él mismo lo sepa.
-                </blockquote>
-            </div>
-        </article>
-
+        <!-- Las tarjetas se generan por JavaScript -->
     </div>
 
-    <!-- CONTROLES DEL PAGINADOR -->
-    <div class="pagination" id="pagination-controls" aria-label="Paginación de historias">
-        <!-- Generado dinámicamente por JavaScript -->
-    </div>
-</main>
+    <div class="pagination" id="pagination-controls" aria-label="Paginación de historias"></div>
+</section>
 
-<footer>
-    <p>Que la Fuerza te acompañe.</p>
+<!-- ============================================
+     SECCIÓN DE PERSONAJES
+     ============================================ -->
+<section class="section" id="personajes">
+    <div class="section-header">
+        <span class="section-label">Conoce a los protagonistas</span>
+        <h2 class="section-title">Personajes Icónicos</h2>
+        <p class="section-desc">
+            Los rostros que marcaron generaciones en la saga más grande de todos los tiempos.
+        </p>
+        <div class="section-divider"></div>
+    </div>
+
+    <div class="characters-grid" id="characters-grid">
+        <!-- Se genera por JavaScript -->
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">9</div>
+            <div class="stat-label">Películas</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">11</div>
+            <div class="stat-label">Series</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">+100</div>
+            <div class="stat-label">Personajes</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">+50</div>
+            <div class="stat-label">Años de Historia</div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================
+     SECCIÓN DE CRONOLOGÍA
+     ============================================ -->
+<section class="section" id="cronologia">
+    <div class="section-header">
+        <span class="section-label">Línea Temporal</span>
+        <h2 class="section-title">Cronología Galáctica</h2>
+        <p class="section-desc">
+            Desde el amanecer de la Alta República hasta el ascenso de la Primera Orden.
+        </p>
+        <div class="section-divider"></div>
+    </div>
+
+    <div class="timeline">
+        <div class="timeline-item" style="--timeline-color: #64b5f6;">
+            <div class="timeline-era">c. 500 ABY — 100 ABY</div>
+            <h3 class="timeline-title">La Alta República</h3>
+            <p class="timeline-desc">
+                La Orden Jedi en su máximo esplendor. La República Galáctica expande la paz y la justicia por la galaxia. Los Nihil amenazan este equilibrio.
+            </p>
+        </div>
+        <div class="timeline-item" style="--timeline-color: #ba68c8;">
+            <div class="timeline-era">32 ABY — 19 ABY</div>
+            <h3 class="timeline-title">Caída de los Jedi</h3>
+            <p class="timeline-desc">
+                Las Guerras Clon devastan la galaxia. El Canciller Palpatine ejecuta la Orden 66, exterminando a los Jedi y estableciendo el Imperio Galáctico.
+            </p>
+        </div>
+        <div class="timeline-item" style="--timeline-color: #ffd54f;">
+            <div class="timeline-era">19 ABY — 0 ABY</div>
+            <h3 class="timeline-title">Reinado del Imperio</h3>
+            <p class="timeline-desc">
+                La tiranía imperial se extiende. La Alianza Rebelde surge como respuesta. Comienza la Guerra Civil Galáctica.
+            </p>
+        </div>
+        <div class="timeline-item" style="--timeline-color: #ef5350;">
+            <div class="timeline-era">0 ABY — 5 DBY</div>
+            <h3 class="timeline-title">La Nueva República</h3>
+            <p class="timeline-desc">
+                Tras la Batalla de Yavin, la Rebelión se convierte en la Nueva República. La galaxia comienza a sanar bajo un nuevo gobierno.
+            </p>
+        </div>
+        <div class="timeline-item" style="--timeline-color: #4db6ac;">
+            <div class="timeline-era">5 DBY — 34 DBY</div>
+            <h3 class="timeline-title">La Primera Orden</h3>
+            <p class="timeline-desc">
+                Los restos del Imperio se reorganizan. La Resistencia liderada por Leia Organa lucha contra el nuevo rostro del mal.
+            </p>
+        </div>
+        <div class="timeline-item" style="--timeline-color: #ff8a65;">
+            <div class="timeline-era">34 DBY — En adelante</div>
+            <h3 class="timeline-title">El Ascenso de Skywalker</h3>
+            <p class="timeline-desc">
+                El conflicto final entre la luz y la oscuridad. El legado de los Skywalker se completa y la galaxia enfrenta su destino definitivo.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================
+     SECCIÓN DE CITA
+     ============================================ -->
+<section class="section" id="galaxia">
+    <div class="quote-block">
+        <p class="quote-text">
+            "Hace mucho tiempo, en una galaxia muy, muy lejana... una historia de esperanza, sacrificio y redención que trasciende las estrellas."
+        </p>
+        <p class="quote-author">— Crónicas de los Archivos Jedi</p>
+    </div>
+</section>
+
+<!-- ============================================
+     SECCIÓN DE RECURSOS
+     ============================================ -->
+<section class="section" id="recursos">
+    <div class="section-header">
+        <span class="section-label">Herramientas para fans</span>
+        <h2 class="section-title">Recursos y Enlaces</h2>
+        <p class="section-desc">
+            Todo lo que necesitas para sumergirte aún más en el universo de Star Wars.
+        </p>
+        <div class="section-divider"></div>
+    </div>
+
+    <div class="stories-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
+        <div class="story-card active-page neutral-card" style="display: flex;">
+            <div class="story-content" style="text-align: center; padding: 36px 24px;">
+                <div style="font-size: 2.5rem; margin-bottom: 16px;">🌐</div>
+                <h3 class="story-title">SWAPI - Star Wars API</h3>
+                <p class="story-excerpt">
+                    La API oficial de datos de Star Wars. Accede a información canónica de personajes, planetas, naves y películas.
+                </p>
+                <a href="https://swapi.dev/" target="_blank" rel="noopener" class="btn btn-outline" style="margin-top: 8px; padding: 10px 24px; font-size: 0.8rem;">
+                    Explorar API
+                </a>
+            </div>
+        </div>
+
+        <div class="story-card active-page jedi-card" style="display: flex;">
+            <div class="story-content" style="text-align: center; padding: 36px 24px;">
+                <div style="font-size: 2.5rem; margin-bottom: 16px;">📖</div>
+                <h3 class="story-title">Wookieepedia</h3>
+                <p class="story-excerpt">
+                    La enciclopedia colaborativa más grande de Star Wars. Miles de artículos sobre el lore, personajes y tecnología.
+                </p>
+                <a href="https://starwars.fandom.com/" target="_blank" rel="noopener" class="btn btn-outline" style="margin-top: 8px; padding: 10px 24px; font-size: 0.8rem;">
+                    Visitar Wiki
+                </a>
+            </div>
+        </div>
+
+        <div class="story-card active-page sith-card" style="display: flex;">
+            <div class="story-content" style="text-align: center; padding: 36px 24px;">
+                <div style="font-size: 2.5rem; margin-bottom: 16px;">🎬</div>
+                <h3 class="story-title">StarWars.com</h3>
+                <p class="story-excerpt">
+                    El sitio oficial de Lucasfilm. Noticias, estrenos, contenido exclusivo y todo el canon oficial de la saga.
+                </p>
+                <a href="https://www.starwars.com/" target="_blank" rel="noopener" class="btn btn-outline" style="margin-top: 8px; padding: 10px 24px; font-size: 0.8rem;">
+                    Ir al Sitio
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================
+     FOOTER
+     ============================================ -->
+<footer class="footer">
+    <div class="footer-content">
+        <div>
+            <div class="footer-brand">Archivos Jedi</div>
+            <p class="footer-desc">
+                Tu fuente definitiva de conocimiento sobre el universo de Star Wars. Una galaxia de historias te espera.
+            </p>
+        </div>
+        <div>
+            <h4 class="footer-heading">Explorar</h4>
+            <ul class="footer-links">
+                <li><a href="#historias">Historias</a></li>
+                <li><a href="#personajes">Personajes</a></li>
+                <li><a href="#cronologia">Cronología</a></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="footer-heading">Recursos</h4>
+            <ul class="footer-links">
+                <li><a href="https://swapi.dev/" target="_blank" rel="noopener">SWAPI</a></li>
+                <li><a href="https://starwars.fandom.com/" target="_blank" rel="noopener">Wookieepedia</a></li>
+                <li><a href="https://www.starwars.com/" target="_blank" rel="noopener">StarWars.com</a></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="footer-heading">Legal</h4>
+            <ul class="footer-links">
+                <li><a href="#">Aviso Legal</a></li>
+                <li><a href="#">Privacidad</a></li>
+                <li><a href="#">Contacto</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2025 Archivos Jedi. Sitio no oficial creado por y para fans.</p>
+        <p class="footer-force">✦ Que la Fuerza te acompañe ✦</p>
+    </div>
 </footer>
 
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const cards = document.querySelectorAll(".story-card");
-        const paginationContainer = document.getElementById("pagination-controls");
-        const itemsPerPage = 3; // Límite de 3 historias por página[cite: 2]
-        let currentPage = 1;
+/* ============================================
+   DATOS DE HISTORIAS
+   ============================================ */
+const storiesData = [
+    {
+        id: 1,
+        title: "La Tragedia y Redención de Anakin",
+        faction: "sith",
+        factionLabel: "Lado Oscuro",
+        image: "https://images.unsplash.com/photo-1502136969935-8d8eef54d77b?q=80&w=800&auto=format&fit=crop",
+        excerpt: "Del joven esclavo de Tatooine al temido Darth Vader. La historia del Elegido es una de las más trágicas y hermosas de la saga.",
+        era: "32 ABY — 4 DBY",
+        eraIcon: "⏳",
+        role: "Elegido",
+        roleIcon: "⚔️"
+    },
+    {
+        id: 2,
+        title: "El Mito de Luke Skywalker",
+        faction: "jedi",
+        factionLabel: "Orden Jedi",
+        image: "https://images.unsplash.com/photo-1504333638930-c8787321eee0?q=80&w=800&auto=format&fit=crop",
+        excerpt: "El granjero de humedad que se convirtió en leyenda. Su viaje de héroe es el corazón de la trilogía original.",
+        era: "0 ABY — 34 DBY",
+        eraIcon: "⏳",
+        role: "Maestro Jedi",
+        roleIcon: "⚔️"
+    },
+    {
+        id: 3,
+        title: "Ahsoka Tano: La Sombra de la Orden",
+        faction: "jedi",
+        factionLabel: "Orden Jedi",
+        image: "https://images.unsplash.com/photo-1543722530-d2c3201371e7?q=80&w=800&auto=format&fit=crop",
+        excerpt: "La Padawan que abandonó la Orden para encontrarse a sí misma. Su camino la llevó a convertirse en una de las figuras más importantes de la galaxia.",
+        era: "22 ABY — 9 DBY",
+        eraIcon: "⏳",
+        role: "Guerrera Libre",
+        roleIcon: "⚔️"
+    },
+    {
+        id: 4,
+        title: "Conde Dooku: La Nobleza Caída",
+        faction: "sith",
+        factionLabel: "Separatistas",
+        image: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=80&w=800&auto=format&fit=crop",
+        excerpt: "Un Jedi respetado que cayó en la oscuridad. Su elegancia y poderío ocultaban una profunda desilusión con la República.",
+        era: "44 ABY — 19 ABY",
+        eraIcon: "⏳",
+        role: "Lord Sith",
+        roleIcon: "⚔️"
+    },
+    {
+        id: 5,
+        title: "El Credo y las Cenizas de Mandalore",
+        faction: "neutral",
+        factionLabel: "Mandalore",
+        image: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?q=80&w=800&auto=format&fit=crop",
+        excerpt: "Un pueblo guerrero que sobrevivió a la Purga y se reinventó bajo un nuevo Credo. El camino de Mandalore es el camino de la resiliencia.",
+        era: "Siglos de historia",
+        eraIcon: "⏳",
+        role: "Cultura",
+        roleIcon: "🛡️"
+    },
+    {
+        id: 6,
+        title: "El Genio Táctico de Thrawn",
+        faction: "sith",
+        factionLabel: "Imperio Galáctico",
+        image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop",
+        excerpt: "El Gran Almirante que estudió el arte de sus enemigos para conquistarlos. Un estratega de otro nivel que trascendió las filas imperiales.",
+        era: "19 ABY — 9 DBY",
+        eraIcon: "⏳",
+        role: "Gran Almirante",
+        roleIcon: "🎯"
+    },
+    {
+        id: 7,
+        title: "La Dinastía Skywalker: Un Legado de Esperanza",
+        faction: "jedi",
+        factionLabel: "Familia Skywalker",
+        image: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=800&auto=format&fit=crop",
+        excerpt: "Desde Shmi hasta Ben Solo, el linaje Skywalker ha sido el eje central de la saga. Su historia es la historia de la galaxia misma.",
+        era: "41 ABY — 35 DBY",
+        eraIcon: "⏳",
+        role: "Dinastía",
+        roleIcon: "👑"
+    },
+    {
+        id: 8,
+        title: "Obi-Wan Kenobi: El Guardián de la Fe",
+        faction: "jedi",
+        factionLabel: "Orden Jedi",
+        image: "https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?q=80&w=800&auto=format&fit=crop",
+        excerpt: "El Maestro que sacrificó todo para proteger la esperanza. Su vida es un testimonio de paciencia, sabiduría y fe inquebrantable en la Fuerza.",
+        era: "57 ABY — 0 DBY",
+        eraIcon: "⏳",
+        role: "Maestro Jedi",
+        roleIcon: "⚔️"
+    },
+    {
+        id: 9,
+        title: "Palpatine: El Canciller Sith",
+        faction: "sith",
+        factionLabel: "Lado Oscuro",
+        image: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=800&auto=format&fit=crop",
+        excerpt: "El hombre que manipuló una galaxia entera desde las sombras. Su plan para el dominio absoluto fue la obra maestra de la traición.",
+        era: "82 ABY — 4 DBY",
+        eraIcon: "⏳",
+        role: "Lord Sith",
+        roleIcon: "⚔️"
+    }
+];
 
-        const totalPages = Math.ceil(cards.length / itemsPerPage);
+/* ============================================
+   DATOS DE PERSONAJES
+   ============================================ */
+const charactersData = [
+    { name: "Anakin Skywalker", role: "El Elegido", status: "dead", color: "#29b6f6", initial: "AS" },
+    { name: "Luke Skywalker", role: "Maestro Jedi", status: "dead", color: "#66bb6a", initial: "LS" },
+    { name: "Princesa Leia", role: "Líder Rebelde", status: "dead", color: "#ab47bc", initial: "PL" },
+    { name: "Han Solo", role: "Contrabandista", status: "dead", color: "#f5a623", initial: "HS" },
+    { name: "Obi-Wan Kenobi", role: "Maestro Jedi", status: "dead", color: "#29b6f6", initial: "OK" },
+    { name: "Yoda", role: "Gran Maestro", status: "dead", color: "#66bb6a", initial: "YD" },
+    { name: "Ahsoka Tano", role: "Guerrera Togruta", status: "alive", color: "#26c6da", initial: "AT" },
+    { name: "Din Djarin", role: "El Mandaloriano", status: "alive", color: "#8d6e63", initial: "DD" },
+    { name: "Grogu", role: "El Niño", status: "alive", color: "#66bb6a", initial: "GR" },
+    { name: "Rey Skywalker", role: "Última Jedi", status: "alive", color: "#f5a623", initial: "RS" },
+    { name: "Darth Vader", role: "Lord Sith", status: "dead", color: "#e53935", initial: "DV" },
+    { name: "Emperador Palpatine", role: "Lord Sith", status: "dead", color: "#e53935", initial: "EP" }
+];
 
-        function showPage(page) {
-            currentPage = page;
-            const start = (page - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
+/* ============================================
+   GENERAR ESTRELLAS
+   ============================================ */
+function generateStars() {
+    const starfield = document.getElementById('starfield');
+    const starCount = 150;
+    let html = '';
+    for (let i = 0; i < starCount; i++) {
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+        const delay = Math.random() * 4;
+        const duration = 3 + Math.random() * 4;
+        const size = Math.random() > 0.9 ? 3 : 2;
+        html += `<div class="star" style="left:${x}%;top:${y}%;animation-delay:${delay}s;animation-duration:${duration}s;width:${size}px;height:${size}px;"></div>`;
+    }
+    starfield.innerHTML = html;
+}
 
-            cards.forEach((card, index) => {
-                if (index >= start && index < end) {
-                    card.classList.add("active-page");
-                } else {
-                    card.classList.remove("active-page");
-                }
-            });
+/* ============================================
+   RENDERIZAR HISTORIAS
+   ============================================ */
+const STORIES_PER_PAGE = 6;
+let currentPage = 1;
 
-            renderPaginationButtons();
-            
-            // Opcional: Desplazar suavemente hacia arriba al cambiar de página
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+function renderStories(page) {
+    const container = document.getElementById('stories-container');
+    const start = (page - 1) * STORIES_PER_PAGE;
+    const end = start + STORIES_PER_PAGE;
+    const pageStories = storiesData.slice(start, end);
 
-        function renderPaginationButtons() {
-            paginationContainer.innerHTML = "";
+    container.innerHTML = pageStories.map(story => `
+        <article class="story-card active-page ${story.faction}-card" style="display: flex;">
+            <div class="story-img-wrapper">
+                <img src="${story.image}" alt="${story.title}" class="story-img" loading="lazy">
+                <div class="story-img-overlay"></div>
+                <span class="story-faction ${story.faction}">${story.factionLabel}</span>
+            </div>
+            <div class="story-content">
+                <h3 class="story-title">${story.title}</h3>
+                <p class="story-excerpt">${story.excerpt}</p>
+                <div class="story-meta">
+                    <span class="story-meta-item">
+                        <span class="icon">${story.eraIcon}</span>
+                        ${story.era}
+                    </span>
+                    <span class="story-meta-item">
+                        <span class="icon">${story.roleIcon}</span>
+                        ${story.role}
+                    </span>
+                </div>
+            </div>
+        </article>
+    `).join('');
+}
 
-            for (let i = 1; i <= totalPages; i++) {
-                const btn = document.createElement("button");
-                btn.textContent = i;
-                btn.className = `page-btn ${i === currentPage ? "active" : ""}`;
-                btn.setAttribute("aria-label", `Ir a la página ${i}`);
-                
-                btn.addEventListener("click", () => {
-                    showPage(i);
-                });
+function renderPagination() {
+    const container = document.getElementById('pagination-controls');
+    const totalPages = Math.ceil(storiesData.length / STORIES_PER_PAGE);
+    let html = '';
 
-                paginationContainer.appendChild(btn);
+    html += `<button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} aria-label="Página anterior">←</button>`;
+
+    for (let i = 1; i <= totalPages; i++) {
+        html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})" aria-label="Ir a página ${i}">${i}</button>`;
+    }
+
+    html += `<button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} aria-label="Página siguiente">→</button>`;
+    html += `<span class="page-info">Página ${currentPage} de ${totalPages}</span>`;
+
+    container.innerHTML = html;
+}
+
+function goToPage(page) {
+    const totalPages = Math.ceil(storiesData.length / STORIES_PER_PAGE);
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    renderStories(page);
+    renderPagination();
+    document.getElementById('historias').scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ============================================
+   RENDERIZAR PERSONAJES
+   ============================================ */
+function renderCharacters() {
+    const container = document.getElementById('characters-grid');
+    container.innerHTML = charactersData.map(char => `
+        <div class="character-card" style="--character-color: ${char.color};">
+            <div class="character-avatar" style="background: ${char.color}22; border: 2px solid ${char.color}44;">
+                ${char.initial}
+            </div>
+            <div class="character-name">${char.name}</div>
+            <div class="character-role">${char.role}</div>
+            <span class="character-status ${char.status}">
+                ${char.status === 'alive' ? 'Con vida' : char.status === 'dead' ? 'Fallecido' : 'Desconocido'}
+            </span>
+        </div>
+    `).join('');
+}
+
+/* ============================================
+   NAVEGACIÓN - SCROLL SPY
+   ============================================ */
+function initScrollSpy() {
+    const sections = document.querySelectorAll('section[id], header[id]');
+    const navLinks = document.querySelectorAll('.nav-links a');
+
+    window.addEventListener('scroll', () => {
+        const scrollY = window.scrollY + 100;
+        let currentSection = '';
+
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.offsetHeight;
+            if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
+                currentSection = section.getAttribute('id');
             }
-        }
+        });
 
-        // Inicializar la primera página
-        if (totalPages > 0) {
-            showPage(1);
-        }
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + currentSection) {
+                link.classList.add('active');
+            }
+        });
     });
+}
+
+/* ============================================
+   NAVBAR SCROLL EFFECT
+   ============================================ */
+function initNavbarScroll() {
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+        navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+}
+
+/* ============================================
+   MENÚ MÓVIL
+   ============================================ */
+function initMobileMenu() {
+    const toggle = document.getElementById('navToggle');
+    const links = document.getElementById('navLinks');
+
+    toggle.addEventListener('click', () => {
+        const isOpen = links.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', isOpen);
+    });
+
+    links.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            links.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
+        });
+    });
+}
+
+/* ============================================
+   INICIALIZACIÓN
+   ============================================ */
+document.addEventListener('DOMContentLoaded', () => {
+    generateStars();
+    renderStories(1);
+    renderPagination();
+    renderCharacters();
+    initScrollSpy();
+    initNavbarScroll();
+    initMobileMenu();
+});
 </script>
 
 </body>
