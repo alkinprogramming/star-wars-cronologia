@@ -3,137 +3,434 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orden Cronológico de Star Wars (Interactivo, Accesible y Móvil)</title>
+    <title>Archivos Jedi — Cronología Definitiva de Star Wars</title>
+    <meta name="description" content="Cronología interactiva completa del universo Star Wars. Marca tu progreso y explora todas las eras.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&family=Michroma&display=swap" rel="stylesheet">
     <style>
+        /* ============================================
+           VARIABLES Y RESET
+           ============================================ */
         :root {
-            --bg-color: #0b0e14;
-            --card-bg: #151a23;
-            --card-hover: #1c2331;
-            --accent-empire: #e53935;
-            --accent-rebellion: #29b6f6;
-            --accent-republic: #ab47bc;
-            --text-main: #e0e6ed;
-            --text-muted: #90a4ae;
-            --gold: #f57c00;
+            --bg-primary: #05080f;
+            --bg-secondary: #0b0e14;
+            --bg-card: #111827;
+            --bg-card-hover: #1a2235;
+            --bg-elevated: #161e2e;
+            --bg-details: #0f131a;
+            --text-primary: #e8edf5;
+            --text-secondary: #8b9bb4;
+            --text-dim: #5a6a80;
+            --gold: #f5a623;
+            --gold-light: #ffc107;
+            --sith-red: #e53935;
+            --sith-red-glow: rgba(229, 57, 53, 0.6);
+            --jedi-blue: #29b6f6;
+            --jedi-blue-glow: rgba(41, 182, 246, 0.6);
+            --jedi-green: #66bb6a;
+            --purple: #ab47bc;
+            --legends-purple: #7e57c2;
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-glow: rgba(245, 166, 35, 0.3);
+            --border-medium: #1e2736;
+            --font-display: 'Orbitron', sans-serif;
+            --font-body: 'Inter', 'Segoe UI', sans-serif;
+            --font-accent: 'Michroma', sans-serif;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+            --shadow-glow: 0 0 30px rgba(245, 166, 35, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * {
+        *, *::before, *::after {
             box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
             margin: 0;
             padding: 0;
-            line-height: 1.6;
         }
 
-        /* BARRA DE NAVEGACIÓN SIMULADA */
-        nav {
-            background-color: rgba(11, 14, 20, 0.95);
-            padding: 15px 20px;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            border-bottom: 1px solid #1e2736;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        nav a {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.9rem;
-            transition: color 0.3s;
-            padding: 5px 10px;
-            border-radius: 4px;
+        /* ============================================
+           ESTRELLAS DE FONDO
+           ============================================ */
+        .starfield {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 4s infinite ease-in-out;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.1; transform: scale(0.8); }
+            50% { opacity: 0.8; transform: scale(1.2); }
         }
 
-        nav a:hover, nav a:focus-visible {
-            color: var(--gold);
-            outline: 2px dashed var(--gold);
-            outline-offset: 2px;
+        /* ============================================
+           SABLES DE LUZ DECORATIVOS
+           ============================================ */
+        .lightsaber-container {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.15;
         }
-
-        nav a.active {
-            color: var(--gold);
-            border-bottom: 2px solid var(--gold);
-        }
-
-        /* HEADER Y BANNER PRINCIPAL */
-        header {
-            text-align: center;
-            padding: 60px 20px;
-            border-bottom: 3px solid var(--gold);
+        .lightsaber {
+            width: 3px;
+            height: 200px;
+            border-radius: 3px;
             position: relative;
+            animation: saberGlow 3s ease-in-out infinite alternate;
+        }
+        .lightsaber::after {
+            content: '';
+            position: absolute;
+            top: 100%; left: 50%;
+            transform: translateX(-50%);
+            width: 12px; height: 40px;
+            background: #333;
+            border-radius: 0 0 4px 4px;
+        }
+        .lightsaber.blue {
+            background: linear-gradient(to bottom, transparent, var(--jedi-blue), transparent);
+            box-shadow: 0 0 20px var(--jedi-blue), 0 0 60px var(--jedi-blue-glow);
+        }
+        .lightsaber.red {
+            background: linear-gradient(to bottom, transparent, var(--sith-red), transparent);
+            box-shadow: 0 0 20px var(--sith-red), 0 0 60px var(--sith-red-glow);
+        }
+        @keyframes saberGlow {
+            0% { opacity: 0.6; transform: scaleY(1); }
+            100% { opacity: 1; transform: scaleY(1.05); }
+        }
+
+        /* ============================================
+           BARRA DE NAVEGACIÓN
+           ============================================ */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(5, 8, 15, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+            transition: var(--transition);
+        }
+        .navbar.scrolled {
+            background: rgba(5, 8, 15, 0.95);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+        }
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 68px;
+            gap: 16px;
+        }
+        .nav-logo {
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: 1.05rem;
+            color: var(--gold);
+            text-decoration: none;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+        .nav-logo:hover { text-shadow: 0 0 20px var(--gold); }
+        .nav-logo .logo-icon {
+            width: 28px; height: 28px;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            position: relative;
+        }
+        .nav-logo .logo-icon::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 1px solid rgba(245, 166, 35, 0.3);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            list-style: none;
+            margin: 0; padding: 0;
+        }
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-links a:hover,
+        .nav-links a:focus-visible {
+            color: var(--gold);
+            background: rgba(245, 166, 35, 0.08);
+            outline: none;
+        }
+        .nav-links a.active {
+            color: var(--gold);
+            background: rgba(245, 166, 35, 0.1);
+        }
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 2px; left: 50%;
+            transform: translateX(-50%);
+            width: 20px; height: 2px;
+            background: var(--gold);
+            border-radius: 1px;
+            box-shadow: 0 0 8px var(--gold);
+        }
+        /* Enlace externo */
+        .nav-links a.nav-external {
+            color: var(--jedi-blue);
+            border: 1px solid rgba(41, 182, 246, 0.3);
+            background: rgba(41, 182, 246, 0.06);
+        }
+        .nav-links a.nav-external:hover {
+            color: #fff;
+            background: rgba(41, 182, 246, 0.18);
+            border-color: var(--jedi-blue);
+            box-shadow: 0 0 15px rgba(41, 182, 246, 0.3);
+        }
+        .nav-links a.nav-external.active::after { display: none; }
+
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* ============================================
+           HERO / HEADER
+           ============================================ */
+        header.page-hero {
+            position: relative;
+            text-align: center;
+            padding: 160px 24px 80px;
+            overflow: hidden;
+            z-index: 1;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .page-hero .hero-bg {
+            position: absolute;
+            inset: 0;
             background-image: url('https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1920&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
-            z-index: 1;
+            opacity: 0.25;
         }
-
-        header::before {
+        .page-hero::after {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(rgba(11, 14, 20, 0.8), rgba(11, 14, 20, 1));
-            z-index: -1;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 0%, var(--bg-primary) 75%);
+            pointer-events: none;
         }
-
-        h1 {
-            color: #fff;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin: 0 0 10px 0;
-            font-size: 2.2rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-        }
-
-        .subtitle {
-            color: var(--gold);
-            font-style: italic;
-            margin: 0;
-            font-size: 1.1rem;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-        }
-
-        .container {
-            max-width: 900px;
+        .page-hero .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
         }
-
-        .progress-container {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 1.2rem;
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(245, 166, 35, 0.1);
+            border: 1px solid rgba(245, 166, 35, 0.3);
             color: var(--gold);
-            font-weight: bold;
-            background: rgba(21, 26, 35, 0.8);
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-        }
-
-        .era-title {
-            margin-top: 40px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid;
+            padding: 6px 18px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 1.4rem;
+            letter-spacing: 2px;
+            margin-bottom: 28px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        .hero-badge .dot {
+            width: 6px; height: 6px;
+            background: var(--gold);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.8s ease-out 0.15s both;
+            text-shadow: 0 0 40px rgba(245, 166, 35, 0.3);
+        }
+        h1 .highlight {
+            color: var(--gold);
+            display: block;
+        }
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: clamp(0.95rem, 2vw, 1.15rem);
+            font-weight: 300;
+            margin: 0 auto;
+            max-width: 600px;
+            animation: fadeInUp 0.8s ease-out 0.3s both;
         }
 
-        .era-empire { border-color: var(--accent-empire); color: var(--accent-empire); }
-        .era-rebellion { border-color: var(--accent-rebellion); color: var(--accent-rebellion); }
-        .era-republic { border-color: var(--accent-republic); color: var(--accent-republic); }
+        /* ============================================
+           CONTENEDOR PRINCIPAL
+           ============================================ */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
 
+        /* ============================================
+           PROGRESO
+           ============================================ */
+        .progress-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 50px;
+            padding: 20px 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            font-family: var(--font-display);
+            font-size: 1rem;
+            color: var(--gold);
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            text-align: center;
+            box-shadow: var(--shadow-card);
+            transition: var(--transition);
+        }
+        .progress-container:hover {
+            border-color: var(--border-glow);
+            box-shadow: var(--shadow-glow);
+        }
+        .progress-container .progress-dot {
+            width: 10px; height: 10px;
+            background: var(--gold);
+            border-radius: 50%;
+            box-shadow: 0 0 12px var(--gold);
+            animation: pulse 2s infinite;
+            flex-shrink: 0;
+        }
+        .progress-container #progress-text {
+            color: #fff;
+            font-size: 1.05rem;
+        }
+
+        /* ============================================
+           TÍTULOS DE ERA
+           ============================================ */
+        .era-title {
+            position: relative;
+            margin-top: 60px;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            font-family: var(--font-display);
+            font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .era-title::before {
+            content: '▸ ERA';
+            display: block;
+            font-family: var(--font-accent);
+            font-size: 0.65rem;
+            font-weight: 400;
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+            opacity: 0.7;
+        }
+        .era-title::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; left: 0;
+            width: 80px; height: 2px;
+            background: currentColor;
+            box-shadow: 0 0 12px currentColor;
+            border-radius: 2px;
+        }
+
+        .era-empire   { color: var(--sith-red); }
+        .era-rebellion{ color: var(--jedi-blue); }
+        .era-republic { color: var(--purple); }
+        .era-legends  { color: var(--legends-purple); }
+
+        /* ============================================
+           LISTA / TIMELINE
+           ============================================ */
         .timeline {
             list-style: none;
             padding: 0;
@@ -141,46 +438,51 @@
         }
 
         .item {
-            background-color: var(--card-bg);
-            border-radius: 8px;
+            position: relative;
+            background-color: var(--bg-card);
+            border-radius: var(--radius-lg);
             margin-bottom: 16px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.4);
-            border-left: 4px solid #37474f;
+            border: 1px solid var(--border-subtle);
+            border-left: 3px solid #37474f;
             overflow: hidden;
-            transition: background-color 0.3s, transform 0.2s, opacity 0.3s, border-color 0.3s;
+            box-shadow: var(--shadow-card);
+            transition: var(--transition);
         }
-
         .item:hover {
-            background-color: var(--card-hover);
+            background-color: var(--bg-card-hover);
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
         }
-
         .item.seen {
-            opacity: 0.6;
+            opacity: 0.65;
             border-left-color: var(--gold);
         }
-        
         .item.seen .title {
             text-decoration: line-through;
-            color: var(--text-muted);
+            color: var(--text-dim);
+        }
+        .item.active {
+            border-color: var(--border-glow);
+            box-shadow: var(--shadow-glow);
         }
 
-        /* CABECERA ACCESIBLE */
         .item-header {
             display: flex;
             align-items: center;
             gap: 15px;
-            padding: 12px 20px;
+            padding: 16px 22px;
             cursor: pointer;
             user-select: none;
+            transition: background 0.3s;
         }
-        
-        /* Contorno de foco accesible para navegación por teclado */
+        .item-header:hover { background: rgba(245, 166, 35, 0.03); }
         .item-header:focus-visible {
-            outline: 2px dashed var(--gold);
+            outline: 2px solid var(--gold);
             outline-offset: -2px;
-            background-color: var(--card-hover);
+            background-color: var(--bg-card-hover);
         }
 
+        /* Checkbox */
         .checkbox-wrapper {
             position: relative;
             display: flex;
@@ -188,299 +490,553 @@
             justify-content: center;
             z-index: 2;
         }
-
         .seen-checkbox {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             cursor: pointer;
             accent-color: var(--gold);
             margin: 0;
+            border-radius: 6px;
         }
-
         .seen-checkbox:focus-visible {
-            outline: 2px solid #fff;
+            outline: 2px solid var(--gold);
             outline-offset: 2px;
         }
 
+        /* Número */
         .number {
-            background-color: #263238;
-            color: #fff;
-            font-weight: bold;
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            font-family: var(--font-display);
+            font-weight: 700;
             border-radius: 50%;
-            width: 34px;
-            height: 34px;
+            width: 36px; height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             flex-shrink: 0;
-            transition: background-color 0.3s;
+            border: 1px solid var(--border-subtle);
+            transition: var(--transition);
         }
-
         .item.active .number {
-            background-color: var(--gold);
+            background: linear-gradient(135deg, var(--gold), #e65100);
             color: #000;
+            border-color: transparent;
+            box-shadow: 0 0 15px rgba(245, 166, 35, 0.5);
+        }
+        .item.seen .number {
+            background: rgba(245, 166, 35, 0.15);
+            color: var(--gold);
+            border-color: rgba(245, 166, 35, 0.4);
         }
 
+        /* Imagen */
         .item-img {
-            width: 50px;
-            height: 70px;
-            border-radius: 4px;
+            width: 52px;
+            height: 72px;
+            border-radius: var(--radius-sm);
             object-fit: cover;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            background-color: #0b0e14;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+            background-color: var(--bg-primary);
             flex-shrink: 0;
+            border: 1px solid var(--border-subtle);
         }
 
+        /* Título */
         .title {
-            font-weight: bold;
-            font-size: 1.15rem;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1rem;
             color: #fff;
             transition: color 0.3s;
             flex-grow: 1;
-            line-height: 1.3;
+            line-height: 1.35;
+            letter-spacing: 0.3px;
         }
-
-        .item.active .title, .item-header:hover .title {
+        .item.active .title,
+        .item-header:hover .title {
             color: var(--gold);
         }
 
+        /* Icono toggle */
         .icon-toggle {
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            transition: transform 0.3s ease;
+            font-size: 1rem;
+            color: var(--text-dim);
+            transition: transform 0.3s ease, color 0.3s;
+            flex-shrink: 0;
         }
-
         .item.active .icon-toggle {
             transform: rotate(180deg);
             color: var(--gold);
         }
 
-        /* CONTENIDO DESPLEGABLE */
+        /* ============================================
+           DETALLES (ACORDEÓN)
+           ============================================ */
         .details {
             max-height: 0;
             opacity: 0;
             overflow: hidden;
-            transition: max-height 0.4s ease, opacity 0.4s ease, padding 0.4s ease;
-            background-color: #0f131a;
-            color: var(--text-muted);
-            font-size: 1rem;
-            padding: 0 20px;
+            transition: max-height 0.45s ease, opacity 0.35s ease, padding 0.35s ease;
+            background-color: var(--bg-details);
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            padding: 0 22px;
+            border-top: 1px solid transparent;
         }
-
         .item.active .details {
-            max-height: 2000px;
+            max-height: 3000px;
             opacity: 1;
-            padding: 20px;
-            border-top: 1px solid #1e2736;
+            padding: 22px;
+            border-top-color: var(--border-subtle);
         }
-
         .details p {
             margin-top: 0;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
+            line-height: 1.75;
         }
+        .details p strong {
+            color: var(--gold);
+            font-weight: 600;
+        }
+        .details em { color: #c8d4e5; font-style: italic; }
 
-        /* NUEVA IMAGEN DENTRO DEL DETALLE */
         .detail-img {
             width: 100%;
             height: auto;
-            max-height: 300px;
+            max-height: 320px;
             object-fit: cover;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.6);
-            border: 1px solid #1e2736;
+            border-radius: var(--radius-md);
+            margin-bottom: 18px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-subtle);
         }
 
+        /* Sub-listas */
         .sub-list {
-            margin-top: 8px;
+            margin-top: 10px;
             padding-left: 0;
             list-style: none;
         }
-
         .sub-list li {
             position: relative;
-            margin-bottom: 8px;
-            padding-left: 20px;
-            font-size: 0.95rem;
+            margin-bottom: 10px;
+            padding-left: 22px;
+            font-size: 0.92rem;
+            line-height: 1.6;
         }
-
         .sub-list li::before {
-            content: "•";
-            color: var(--gold);
-            font-weight: bold;
+            content: "";
             position: absolute;
-            left: 0;
+            left: 2px;
+            top: 9px;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--gold);
+            box-shadow: 0 0 6px var(--gold);
         }
+        .sub-list li strong { color: var(--gold); }
 
+        /* Caja híbrida (montajes) */
         .hybrid-box {
-            background-color: #1c2331;
-            border: 1px solid #2e3b52;
-            border-radius: 6px;
-            padding: 15px;
-            margin-top: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-left: 3px solid var(--gold);
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+            margin-top: 14px;
         }
-
         .hybrid-step {
-            margin-bottom: 8px;
-            font-size: 0.95rem;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            line-height: 1.6;
         }
-        
-        .hybrid-step:last-child {
-            margin-bottom: 0;
-        }
-
+        .hybrid-step:last-child { margin-bottom: 0; }
         .hybrid-step strong { color: var(--gold); }
 
-        footer {
-            text-align: center;
-            padding: 40px 0 20px;
-            color: var(--text-muted);
+        /* ============================================
+           BADGES
+           ============================================ */
+        .legend-badge {
+            display: inline-block;
+            background: var(--legends-purple);
+            color: #fff;
+            font-family: var(--font-accent);
+            font-size: 0.6rem;
+            padding: 3px 8px;
+            border-radius: 50px;
+            margin-left: 8px;
+            vertical-align: middle;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 400;
+        }
+        .warning-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            color: #000;
+            font-family: var(--font-body);
+            font-size: 0.62rem;
+            padding: 3px 8px;
+            border-radius: 50px;
+            margin-left: 8px;
+            vertical-align: middle;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 700;
+        }
+        .warning-box {
+            background: rgba(255, 152, 0, 0.08);
+            border-left: 3px solid #ff9800;
+            color: #ffcc80;
+            padding: 14px 18px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 18px;
             font-size: 0.9rem;
-            border-top: 1px solid #1e2736;
-            margin-top: 40px;
+            line-height: 1.6;
+        }
+        .warning-box strong { color: #ffb74d; }
+
+        /* ============================================
+           FOOTER
+           ============================================ */
+        .footer {
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid var(--border-subtle);
+            padding: 60px 24px 30px;
+            background: linear-gradient(to bottom, transparent, rgba(5, 8, 15, 0.95));
+            margin-top: 60px;
+        }
+        .footer-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .footer-brand {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 900;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+        .footer-desc {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            line-height: 1.7;
+        }
+        .footer-heading {
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+        .footer-links li { margin-bottom: 8px; }
+        .footer-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+        .footer-links a:hover {
+            color: var(--gold);
+            padding-left: 4px;
+        }
+        .footer-bottom {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .footer-bottom p {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+        .footer-force {
+            color: var(--gold);
+            font-family: var(--font-accent);
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
-        /* MEDIA QUERIES PARA MÓVILES (Responsividad) */
-        @media (max-width: 600px) {
-            h1 { font-size: 1.5rem; }
-            .subtitle { font-size: 0.95rem; }
-            header { padding: 40px 15px; }
-            .era-title { font-size: 1.2rem; }
-            
-            nav {
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 68px; left: 0; right: 0;
+                background: rgba(5, 8, 15, 0.98);
+                backdrop-filter: blur(20px);
                 flex-direction: column;
-                align-items: center;
-                gap: 10px;
+                padding: 16px;
+                gap: 4px;
+                border-bottom: 1px solid var(--border-subtle);
             }
-            
-            .item-header {
-                padding: 12px 10px;
-                gap: 10px;
-            }
-            .title { font-size: 1rem; }
-            .item-img {
-                width: 40px;
-                height: 56px;
-            }
-            .number {
-                width: 28px;
-                height: 28px;
+            .nav-links.open { display: flex; }
+            .nav-links a { width: 100%; justify-content: center; padding: 12px; }
+            .nav-toggle { display: block; }
+
+            header.page-hero { padding: 130px 16px 60px; }
+            .container { padding: 40px 16px; }
+
+            .progress-container {
                 font-size: 0.85rem;
+                padding: 16px;
+                gap: 10px;
+                letter-spacing: 1px;
             }
-            .seen-checkbox {
-                width: 20px;
-                height: 20px;
+
+            .item-header {
+                padding: 14px 14px;
+                gap: 10px;
+                flex-wrap: wrap;
             }
-            .details {
-                padding: 0 10px;
-                font-size: 0.95rem;
-            }
-            .item.active .details {
-                padding: 15px 10px;
-            }
-            .detail-img {
-                max-height: 200px;
+            .item-img { width: 42px; height: 58px; }
+            .number { width: 30px; height: 30px; font-size: 0.8rem; }
+            .title { font-size: 0.88rem; }
+            .seen-checkbox { width: 20px; height: 20px; }
+
+            .details { padding: 0 14px; font-size: 0.9rem; }
+            .item.active .details { padding: 18px 14px; }
+            .detail-img { max-height: 200px; }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
             }
         }
+
+        @media (max-width: 480px) {
+            .item-header {
+                gap: 8px;
+            }
+            .title { font-size: 0.82rem; }
+            .icon-toggle { font-size: 0.85rem; }
+        }
+
+        /* ============================================
+           ACCESIBILIDAD
+           ============================================ */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        :focus-visible {
+            outline: 2px solid var(--gold);
+            outline-offset: 3px;
+        }
+        ::selection {
+            background: var(--gold);
+            color: #000;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb {
+            background: #2a3548;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover { background: #3a4a62; }
     </style>
 </head>
 <body>
 
-<!-- Navegación agregada para conectar las páginas -->
-<nav aria-label="Navegación principal">
-    <a href="#" class="active" aria-current="page">Cronología Interactiva</a>
-    <a href="historias.html" aria-label="Ir a Historias y Leyendas">Historias y Leyendas</a>
+<!-- Campo de estrellas animado -->
+<div class="starfield" id="starfield" aria-hidden="true"></div>
+
+<!-- Sables de luz decorativos -->
+<div class="lightsaber-container" style="top: 15%; left: 4%;" aria-hidden="true">
+    <div class="lightsaber blue"></div>
+</div>
+<div class="lightsaber-container" style="top: 55%; right: 4%;" aria-hidden="true">
+    <div class="lightsaber red"></div>
+</div>
+
+<!-- ============================================
+     BARRA DE NAVEGACIÓN
+     ============================================ -->
+<nav class="navbar" id="navbar" aria-label="Navegación principal">
+    <div class="nav-container">
+        <a href="index.html" class="nav-logo" aria-label="Archivos Jedi - Inicio">
+            <span class="logo-icon">✦</span>
+            Archivos Jedi
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+            ☰
+        </button>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html" class="active" aria-current="page">Cronología</a></li>
+            <li><a href="historias.html" class="nav-external">Historias →</a></li>
+        </ul>
+    </div>
 </nav>
 
-<header>
-    <h1>Star Wars: Cronología Definitiva</h1>
-    <p class="subtitle">Selecciona cualquier título para ver más detalles</p>
+<!-- ============================================
+     HERO
+     ============================================ -->
+<header class="page-hero">
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="hero-content">
+        <div class="hero-badge">
+            <span class="dot"></span>
+            Guía de visionado completa
+        </div>
+        <h1>
+            Cronología
+            <span class="highlight">Definitiva</span>
+        </h1>
+        <p class="subtitle">
+            Selecciona cualquier título para ver más detalles. Marca tu progreso y sigue el orden definitivo del universo Star Wars.
+        </p>
+    </div>
 </header>
 
+<!-- ============================================
+     CONTENIDO
+     ============================================ -->
 <div class="container">
-    <div class="progress-container">Progreso: <span id="progress-text">0/26</span> completados</div>
+    <div class="progress-container" role="status" aria-live="polite">
+        <span class="progress-dot" aria-hidden="true"></span>
+        Progreso: <span id="progress-text">0/39</span> completados
+    </div>
 
-    <!-- ERA ALZAMIENTO DEL IMPERIO -->
-    <h2 class="era-title era-empire">Era del Alzamiento del Imperio</h2>
+    <!-- ERA 1 -->
+    <h2 class="era-title era-empire">Era de la Alta República y Alzamiento del Imperio</h2>
     <ul class="timeline">
-        
+
         <li class="item" data-id="1">
             <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-1">
                 <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Las crónicas Jedi (Ep 2, 3, 1) como visto" tabindex="-1">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Young Jedi Adventures como visto" tabindex="-1">
                 </div>
                 <span class="number">1</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Jedi+Tales" alt="Poster Crónicas Jedi" class="item-img" aria-hidden="true">
-                <span class="title">Las crónicas Jedi (T1, Episodios 2, 3 y 1)</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Young+Jedi" alt="Poster Young Jedi Adventures" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars: Young Jedi Adventures (Serie)</span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
             <div class="details" id="panel-1" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Crónicas+Jedi" alt="Escena de las crónicas Jedi" class="detail-img">
-                <p><strong>Contexto:</strong> Explora la juventud del Conde Dooku con Qui-Gon Jinn como su padawan. Muestra las primeras señales de corrupción en el Senado Galáctico y cómo Dooku comienza a desilusionarse con la Orden Jedi. También presenciamos el nacimiento y los primeros años de Ahsoka Tano, mostrando su sensibilidad innata a la Fuerza en su aldea natal.</p>
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Young+Jedi" alt="Escena Young Jedi Adventures" class="detail-img">
+                <p><strong>Contexto:</strong> Ambientada durante la era de la Alta República, unos 200 años antes de <em>La amenaza fantasma</em>. Sigue las aventuras de un grupo de jóvenes iniciados Jedi (Kai, Lys y Nubs) mientras aprenden los caminos de la Fuerza bajo la tutela del Maestro Yoda y otros Jedi.</p>
             </div>
         </li>
 
         <li class="item" data-id="2">
             <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-2">
                 <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Episodio I como visto" tabindex="-1">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Las crónicas Jedi (Ep 2, 3 y 1) como visto" tabindex="-1">
                 </div>
                 <span class="number">2</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Episodio+I" alt="Poster Episodio 1" class="item-img" aria-hidden="true">
-                <span class="title">Star Wars Episodio I: La amenaza fantasma</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Jedi+Tales" alt="Poster Crónicas Jedi" class="item-img" aria-hidden="true">
+                <span class="title">Las crónicas Jedi (T1, Episodios 2, 3 y 1)</span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
             <div class="details" id="panel-2" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Amenaza+Fantasma" alt="Escena Episodio 1" class="detail-img">
-                <p><strong>Sinopsis:</strong> La Federación de Comercio bloquea el planeta Naboo por órdenes secretas del Lord Sith Darth Sidious. Los caballeros Jedi Qui-Gon Jinn y Obi-Wan Kenobi son enviados para resolver el conflicto. En su escape, aterrizan en el desértico Tatooine, donde descubren a un joven esclavo, Anakin Skywalker, que posee un nivel de midiclorianos sin precedentes. A la par, los Sith regresan a la luz tras un milenio ocultos a través del temible Darth Maul.</p>
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Crónicas+Jedi" alt="Escena de las crónicas Jedi" class="detail-img">
+                <p><strong>Contexto:</strong> Explora la juventud del Conde Dooku con Qui-Gon Jinn como su padawan. Muestra las primeras señales de corrupción en el Senado Galáctico y cómo Dooku comienza a desilusionarse con la Orden Jedi. También presenciamos el nacimiento y los primeros años de Ahsoka Tano, mostrando su sensibilidad innata a la Fuerza en su aldea natal.</p>
             </div>
         </li>
 
         <li class="item" data-id="3">
             <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-3">
                 <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Crónicas Jedi Ep 4 como visto" tabindex="-1">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar The Acolyte como visto" tabindex="-1">
                 </div>
                 <span class="number">3</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Jedi+Tales" alt="Poster Crónicas Jedi" class="item-img" aria-hidden="true">
-                <span class="title">Las crónicas Jedi (T1, Episodio 4)</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=The+Acolyte" alt="Poster The Acolyte" class="item-img" aria-hidden="true">
+                <span class="title">The Acolyte (Serie) <span class="warning-badge">⚠️ Aviso</span></span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
             <div class="details" id="panel-3" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Dooku" alt="Escena de Dooku" class="detail-img">
-                <p><strong>Contexto:</strong> Tras la trágica muerte de Qui-Gon Jinn a manos de Darth Maul, el Conde Dooku pierde por completo la fe en el Consejo Jedi. Vemos el momento exacto de su traición final, cómo borra los archivos del planeta Kamino de la biblioteca Jedi, y su sometimiento formal ante Darth Sidious, naciendo así Darth Tyranus.</p>
+                <div class="warning-box">
+                    <strong>⚠️ Aviso importante:</strong> Esta serie no conecta con la historia principal de esta cronología. Se considera un relato aparte dentro del canon y su trama no afecta a los eventos posteriores de la saga Skywalker.
+                </div>
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+The+Acolyte" alt="Escena The Acolyte" class="detail-img">
+                <p><strong>Sinopsis:</strong> Un thriller de misterio ambientado al final de la era de la Alta República. Una ex-padawan y su antiguo maestro Jedi se reúnen para investigar una serie de crímenes que revelan una conspiración oscura y el regreso de fuerzas Sith que se creían extintas.</p>
             </div>
         </li>
 
         <li class="item" data-id="4">
             <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-4">
                 <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Episodio II como visto" tabindex="-1">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Episodio I como visto" tabindex="-1">
                 </div>
                 <span class="number">4</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Episodio+II" alt="Poster Episodio 2" class="item-img" aria-hidden="true">
-                <span class="title">Star Wars Episodio II: El ataque de los clones</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Episodio+I" alt="Poster Episodio 1" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars Episodio I: La amenaza fantasma</span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
             <div class="details" id="panel-4" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Ataque+de+los+Clones" alt="Escena Episodio 2" class="detail-img">
-                <p><strong>Sinopsis:</strong> Han pasado 10 años. Un movimiento Separatista liderado por el Conde Dooku amenaza con dividir la galaxia. Mientras Obi-Wan investiga un intento de asesinato contra la Senadora Padmé Amidala y descubre un inmenso ejército de clones en Kamino, Anakin Skywalker inicia un romance prohibido con Padmé. La trágica muerte de la madre de Anakin desencadena su primera masacre. La película culmina con la Batalla de Geonosis, el inicio oficial de las devastadoras Guerras Clon.</p>
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Amenaza+Fantasma" alt="Escena Episodio 1" class="detail-img">
+                <p><strong>Sinopsis:</strong> La Federación de Comercio bloquea el planeta Naboo por órdenes secretas del Lord Sith Darth Sidious. Los caballeros Jedi Qui-Gon Jinn y Obi-Wan Kenobi son enviados para resolver el conflicto. En su escape, aterrizan en el desértico Tatooine, donde descubren a un joven esclavo, Anakin Skywalker, que posee un nivel de midiclorianos sin precedentes. A la par, los Sith regresan a la luz tras un milenio ocultos a través del temible Darth Maul.</p>
             </div>
         </li>
 
         <li class="item" data-id="5">
             <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-5">
                 <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Clone Wars Inicio como visto" tabindex="-1">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Crónicas Jedi Ep 4 como visto" tabindex="-1">
                 </div>
                 <span class="number">5</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Clone+Wars" alt="Poster Clone Wars" class="item-img" aria-hidden="true">
-                <span class="title">Star Wars: The Clone Wars (Etapa Inicial)</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Jedi+Tales" alt="Poster Crónicas Jedi" class="item-img" aria-hidden="true">
+                <span class="title">Las crónicas Jedi (T1, Episodio 4)</span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
             <div class="details" id="panel-5" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Clone+Wars+Inicio" alt="Escena Clone Wars" class="detail-img">
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Dooku" alt="Escena de Dooku" class="detail-img">
+                <p><strong>Contexto:</strong> Tras la trágica muerte de Qui-Gon Jinn a manos de Darth Maul, el Conde Dooku pierde por completo la fe en el Consejo Jedi. Vemos el momento exacto de su traición final, cómo borra los archivos del planeta Kamino de la biblioteca Jedi, y su sometimiento formal ante Darth Sidious, naciendo así Darth Tyranus.</p>
+            </div>
+        </li>
+
+        <li class="item" data-id="6">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-6">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Episodio II como visto" tabindex="-1">
+                </div>
+                <span class="number">6</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Episodio+II" alt="Poster Episodio 2" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars Episodio II: El ataque de los clones</span>
+                <span class="icon-toggle" aria-hidden="true">▼</span>
+            </div>
+            <div class="details" id="panel-6" role="region">
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Ataque+de+los+Clones" alt="Escena Episodio 2" class="detail-img">
+                <p><strong>Sinopsis:</strong> Han pasado 10 años. Un movimiento Separatista liderado por el Conde Dooku amenaza con dividir la galaxia. Mientras Obi-Wan investiga un intento de asesinato contra la Senadora Padmé Amidala y descubre un inmenso ejército de clones en Kamino, Anakin Skywalker inicia un romance prohibido con Padmé. La trágica muerte de la madre de Anakin desencadena su primera masacre. La película culmina con la Batalla de Geonosis, el inicio oficial de las devastadoras Guerras Clon.</p>
+            </div>
+        </li>
+
+        <li class="item" data-id="7">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-7">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Clone Wars Inicio como visto" tabindex="-1">
+                </div>
+                <span class="number">7</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Clone+Wars" alt="Poster Clone Wars" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars: The Clone Wars (Etapa Inicial)</span>
+                <span class="icon-toggle" aria-hidden="true">▼</span>
+            </div>
+            <div class="details" id="panel-7" role="region">
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Clone+Wars+Inicio" alt="Escena Clone Wars" class="detail-img">
                 <p><strong>Contexto:</strong> La galaxia arde en guerra. Para enseñar responsabilidad al impulsivo Anakin Skywalker, Yoda le asigna una joven padawan togruta: Ahsoka Tano. En esta primera fase presenciamos la Batalla de Christophsis, el rescate del hijo de Jabba the Hutt (en la película animada) y las primeras ofensivas contra el General Grievous.</p>
                 <p><strong>Orden exacto de visionado de esta etapa:</strong></p>
                 <ul class="sub-list">
@@ -489,40 +1045,40 @@
                     <li><strong>Película:</strong> <em>Star Wars: The Clone Wars</em> (2008)</li>
                     <li><strong>Serie:</strong> Temporada 3 → Episodio 01 (<em>Clone Cadets</em>)</li>
                     <li><strong>Serie:</strong> Temporada 3 → Episodio 03 (<em>Supply Lines</em>)</li>
-                    <li><strong>Serie:</strong> Temporada 1 → Episodios 01 al 15 y 17 al 21</li>
+                    <li><strong>Serie:</strong> Temporada 1 → Episodios 01 al 15 y 17 al 22</li>
                     <li><strong>Serie:</strong> Temporada 2 → Episodios 01 al 03</li>
                 </ul>
             </div>
         </li>
 
-        <li class="item" data-id="6">
-            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-6">
+        <li class="item" data-id="8">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-8">
                 <div class="checkbox-wrapper">
                     <input type="checkbox" class="seen-checkbox" aria-label="Marcar Crónicas Jedi Ep 5 Inicio como visto" tabindex="-1">
                 </div>
-                <span class="number">6</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Jedi+Tales" alt="Poster Crónicas Jedi" class="item-img" aria-hidden="true">
+                <span class="number">8</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Jedi+Tales" alt="Poster Crónicas Jedi" class="item-img" aria-hidden="true">
                 <span class="title">Las crónicas Jedi (T1, Episodio 5 - Inicio)</span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
-            <div class="details" id="panel-6" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Entrenamiento+Ahsoka" alt="Escena entrenamiento Ahsoka" class="detail-img">
+            <div class="details" id="panel-8" role="region">
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Entrenamiento+Ahsoka" alt="Escena entrenamiento Ahsoka" class="detail-img">
                 <p><strong>Contexto:</strong> Anakin Skywalker, preocupado por la letalidad de la guerra y la supervivencia de su aprendiz, rechaza el entrenamiento con droides del Templo Jedi por considerarlo demasiado predecible. En su lugar, somete a Ahsoka a un implacable y agotador entrenamiento de esquive de disparos aturdidores usando a los propios soldados clon de la Legión 501. Solo debes ver la primera mitad del episodio, antes del salto temporal final.</p>
             </div>
         </li>
 
-        <li class="item" data-id="7">
-            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-7">
+        <li class="item" data-id="9">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-9">
                 <div class="checkbox-wrapper">
                     <input type="checkbox" class="seen-checkbox" aria-label="Marcar Clone Wars Principal como visto" tabindex="-1">
                 </div>
-                <span class="number">7</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Clone+Wars" alt="Poster Clone Wars" class="item-img" aria-hidden="true">
+                <span class="number">9</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Clone+Wars" alt="Poster Clone Wars" class="item-img" aria-hidden="true">
                 <span class="title">Star Wars: The Clone Wars (Desarrollo Principal)</span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
-            <div class="details" id="panel-7" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Clone+Wars+Principal" alt="Escena Batallas Clone Wars" class="detail-img">
+            <div class="details" id="panel-9" role="region">
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Clone+Wars+Principal" alt="Escena Batallas Clone Wars" class="detail-img">
                 <p><strong>Contexto:</strong> El grueso de las Guerras Clon. Aquí se desarrollan las batallas más crudas, la política corrupta de la República, el regreso del temible Darth Maul buscando venganza, la evolución de los soldados clon como individuos pensantes (especialmente el Capitán Rex) y el doloroso juicio que obliga a Ahsoka Tano a abandonar la Orden Jedi, fragmentando el corazón de Anakin.</p>
                 <p><strong>Orden exacto de visionado:</strong></p>
                 <ul class="sub-list">
@@ -536,34 +1092,34 @@
             </div>
         </li>
 
-        <li class="item" data-id="8">
-            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-8">
+        <li class="item" data-id="10">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-10">
                 <div class="checkbox-wrapper">
                     <input type="checkbox" class="seen-checkbox" aria-label="Marcar Crónicas Jedi Ep 5 Final como visto" tabindex="-1">
                 </div>
-                <span class="number">8</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Jedi+Tales" alt="Poster Crónicas Jedi" class="item-img" aria-hidden="true">
+                <span class="number">10</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Jedi+Tales" alt="Poster Crónicas Jedi" class="item-img" aria-hidden="true">
                 <span class="title">Las crónicas Jedi (T1, Episodio 5 - Escena Final)</span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
-            <div class="details" id="panel-8" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Orden+66+Ahsoka" alt="Escena Final Entrenamiento" class="detail-img">
+            <div class="details" id="panel-10" role="region">
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Orden+66+Ahsoka" alt="Escena Final Entrenamiento" class="detail-img">
                 <p><strong>Contexto:</strong> Tras haber visto todas las temporadas previas, volvemos al último tramo de este episodio. Hacemos un salto temporal al dramático momento de la emisión de la Orden 66. En el hangar de la nave, atrapada y rodeada por sus propios clones liderados por el Capitán Rex, se revela que Ahsoka Tano logra sobrevivir únicamente gracias al duro entrenamiento de esquive múltiple que Anakin le obligó a practicar años atrás.</p>
             </div>
         </li>
 
-        <li class="item" data-id="9">
-            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-9">
+        <li class="item" data-id="11">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-11">
                 <div class="checkbox-wrapper">
                     <input type="checkbox" class="seen-checkbox" aria-label="Marcar Montaje Ep III y Final CW como visto" tabindex="-1">
                 </div>
-                <span class="number">9</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Episodio+III" alt="Poster Episodio 3" class="item-img" aria-hidden="true">
+                <span class="number">11</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Episodio+III" alt="Poster Episodio 3" class="item-img" aria-hidden="true">
                 <span class="title">Episodio III + Final de The Clone Wars (Montaje Paralelo)</span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
-            <div class="details" id="panel-9" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Mustafar+y+Mandalore" alt="Escena Episodio 3 y Clone Wars" class="detail-img">
+            <div class="details" id="panel-11" role="region">
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Mustafar+y+Mandalore" alt="Escena Episodio 3 y Clone Wars" class="detail-img">
                 <p><strong>Sinopsis:</strong> El clímax absoluto de la República. Mientras Obi-Wan persigue a Grievous y Anakin es seducido por el Canciller Palpatine hacia el Lado Oscuro para salvar a Padmé, Ahsoka lidera junto a la Legión 501 el asedio al planeta Mandalore para capturar a Darth Maul. La emisión de la Orden 66 destruye la Orden Jedi en un instante, naciendo así el Imperio Galáctico y Darth Vader.</p>
                 <div class="hybrid-box">
                     <div class="hybrid-step"><strong>1. Película Ep. III:</strong> 00:00:00 a 00:27:30 (Batalla sobre Coruscant, rescate del Canciller).</div>
@@ -578,314 +1134,545 @@
             </div>
         </li>
 
-        <li class="item" data-id="10">
-            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-10">
-                <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Crónicas Jedi Ep 6 como visto" tabindex="-1">
-                </div>
-                <span class="number">10</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Jedi+Tales" alt="Poster Crónicas Jedi" class="item-img" aria-hidden="true">
-                <span class="title">Las crónicas Jedi (T1, Episodio 6)</span>
-                <span class="icon-toggle" aria-hidden="true">▼</span>
-            </div>
-            <div class="details" id="panel-10" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Ahsoka+Inquisidor" alt="Escena Inquisidor" class="detail-img">
-                <p><strong>Contexto:</strong> Funciona como un epílogo emocional a la caída de la República. Vemos la asistencia secreta de Ahsoka al funeral de Padmé en Naboo. Tiempo después, Ahsoka intenta vivir escondida como agricultora en una aldea rural bajo otra identidad, pero la tiranía del nuevo Imperio y la llegada de un siniestro Inquisidor cazador de Jedi la obligan a usar la Fuerza y dar el primer paso para unirse a la Rebelión de Bail Organa.</p>
-            </div>
-        </li>
-
-        <li class="item" data-id="11">
-            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-11">
-                <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar The Bad Batch como visto" tabindex="-1">
-                </div>
-                <span class="number">11</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Bad+Batch" alt="Poster Bad Batch" class="item-img" aria-hidden="true">
-                <span class="title">Star Wars: La remesa mala (Temporadas 1 a 3)</span>
-                <span class="icon-toggle" aria-hidden="true">▼</span>
-            </div>
-            <div class="details" id="panel-11" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Bad+Batch" alt="Escena Bad Batch" class="detail-img">
-                <p><strong>Sinopsis:</strong> Justo tras el fin de las Guerras Clon, el Imperio descarta el uso del ejército de clones de Kamino a favor de reclutas humanos (Stormtroopers). La Fuerza Clon 99, un escuadrón de élite con mutaciones genéticas que los hizo inmunes a la programación de la Orden 66, deserta del Imperio. Junto a una misteriosa niña clon llamada Omega, se convierten en mercenarios intentando sobrevivir en una galaxia que cambia drásticamente.</p>
-            </div>
-        </li>
-
         <li class="item" data-id="12">
             <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-12">
                 <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Han Solo como visto" tabindex="-1">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Crónicas Jedi Ep 6 como visto" tabindex="-1">
                 </div>
                 <span class="number">12</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Han+Solo" alt="Poster Han Solo" class="item-img" aria-hidden="true">
-                <span class="title">Han Solo: Una historia de Star Wars</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Jedi+Tales" alt="Poster Crónicas Jedi" class="item-img" aria-hidden="true">
+                <span class="title">Las crónicas Jedi (T1, Episodio 6)</span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
             <div class="details" id="panel-12" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Han+Solo" alt="Escena Han Solo" class="detail-img">
-                <p><strong>Sinopsis:</strong> Una aventura en los bajos fondos criminales de la galaxia durante los años oscuros del dominio imperial. Relata cómo un joven y temerario piloto llamado Han escapa del planeta Corellia, conoce a su inseparable compañero wookiee Chewbacca, se involucra con el sindicato criminal Crimson Dawn, y le gana el legendario Halcón Milenario al encantador contrabandista Lando Calrissian.</p>
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Ahsoka+Inquisidor" alt="Escena Inquisidor" class="detail-img">
+                <p><strong>Contexto:</strong> Funciona como un epílogo emocional a la caída de la República. Vemos la asistencia secreta de Ahsoka al funeral de Padmé en Naboo. Tiempo después, Ahsoka intenta vivir escondida como agricultora en una aldea rural bajo otra identidad, pero la tiranía del nuevo Imperio y la llegada de un siniestro Inquisidor cazador de Jedi la obligan a usar la Fuerza y dar el primer paso para unirse a la Rebelión de Bail Organa.</p>
             </div>
         </li>
 
         <li class="item" data-id="13">
             <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-13">
                 <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Obi-Wan Kenobi como visto" tabindex="-1">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Tales of the Empire como visto" tabindex="-1">
                 </div>
                 <span class="number">13</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Obi-Wan" alt="Poster Obi-Wan Kenobi" class="item-img" aria-hidden="true">
-                <span class="title">Obi-Wan Kenobi (Serie)</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Tales+Empire" alt="Poster Tales of the Empire" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars: Tales of the Empire (Serie)</span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
             <div class="details" id="panel-13" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Obi+Wan+Vader" alt="Escena Obi Wan" class="detail-img">
-                <p><strong>Sinopsis:</strong> Han transcurrido 10 años desde el Episodio III. Obi-Wan vive destrozado emocionalmente, aislado en las arenas de Tatooine y vigilando de lejos a un joven Luke Skywalker. Sin embargo, el secuestro de la pequeña princesa Leia Organa lo obliga a salir de su exilio, atrayendo la atención de los Inquisidores Imperiales y provocando un nuevo y doloroso cara a cara con su antiguo aprendiz, ahora transformado en el aterrador Darth Vader.</p>
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Tales+Empire" alt="Escena Tales of the Empire" class="detail-img">
+                <p><strong>Contexto:</strong> Antología que sigue a dos personajes: Morgan Elsbeth, en su camino de venganza dentro del Imperio, y la ex-Jedi Barriss Offee, en su lucha por sobrevivir en una galaxia cambiante. Ocurre entre la Orden 66 y los primeros años del Imperio.</p>
             </div>
         </li>
 
         <li class="item" data-id="14">
             <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-14">
                 <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Rebels como visto" tabindex="-1">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar The Bad Batch como visto" tabindex="-1">
                 </div>
                 <span class="number">14</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Rebels" alt="Poster Rebels" class="item-img" aria-hidden="true">
-                <span class="title">Star Wars: Rebels (Temporadas 1 a 4)</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Bad+Batch" alt="Poster Bad Batch" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars: La remesa mala (Temporadas 1 a 3)</span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
             <div class="details" id="panel-14" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Rebels" alt="Escena Rebels" class="detail-img">
-                <p><strong>Sinopsis:</strong> Muestra el nacimiento y consolidación de la Alianza Rebelde pocos años antes del Episodio IV. Seguimos a la tripulación de la nave "El Espíritu" (Ghost), que opera principalmente en el planeta Lothal. El grupo incluye a Kanan Jarrus, un Jedi sobreviviente, y su nuevo aprendiz Ezra Bridger. Juntos enfrentan a Inquisidores, a Darth Vader y al brillante estratega imperial, el Gran Almirante Thrawn. Introduce conceptos profundos de la Fuerza como el "Mundo entre Mundos".</p>
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Bad+Batch" alt="Escena Bad Batch" class="detail-img">
+                <p><strong>Sinopsis:</strong> Justo tras el fin de las Guerras Clon, el Imperio descarta el uso del ejército de clones de Kamino a favor de reclutas humanos (Stormtroopers). La Fuerza Clon 99, un escuadrón de élite con mutaciones genéticas que los hizo inmunes a la programación de la Orden 66, deserta del Imperio. Junto a una misteriosa niña clon llamada Omega, se convierten en mercenarios intentando sobrevivir en una galaxia que cambia drásticamente.</p>
             </div>
         </li>
 
         <li class="item" data-id="15">
             <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-15">
                 <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Andor como visto" tabindex="-1">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Maul Shadow Lord como visto" tabindex="-1">
                 </div>
                 <span class="number">15</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Andor" alt="Poster Andor" class="item-img" aria-hidden="true">
-                <span class="title">Andor (Temporadas 1 y 2)</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Maul+Shadow" alt="Poster Maul Shadow Lord" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars: Maul – Shadow Lord (Serie)</span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
             <div class="details" id="panel-15" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Andor" alt="Escena Andor" class="detail-img">
-                <p><strong>Sinopsis:</strong> Un thriller de espionaje político intenso y adulto. Narra la radicalización de Cassian Andor, pasando de ser un cínico ladrón a un comprometido espía de la incipiente Alianza Rebelde. Explora cómo los líderes rebeldes como Mon Mothma financian la revolución desde las sombras de Coruscant, mientras el Imperio ejerce una burocracia opresiva, prisiones crueles y represión ciudadana despiadada.</p>
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Maul+Shadow" alt="Escena Maul Shadow Lord" class="detail-img">
+                <p><strong>Sinopsis:</strong> Ambientada tras <em>The Clone Wars</em>, Darth Maul, el antiguo Lord Sith, intenta reconstruir su sindicato criminal en un planeta fuera del control imperial, mientras busca venganza contra el Emperador.</p>
             </div>
         </li>
 
         <li class="item" data-id="16">
             <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-16">
                 <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Rogue One como visto" tabindex="-1">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Han Solo como visto" tabindex="-1">
                 </div>
                 <span class="number">16</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Rogue+One" alt="Poster Rogue One" class="item-img" aria-hidden="true">
-                <span class="title">Rogue One: Una historia de Star Wars</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Han+Solo" alt="Poster Han Solo" class="item-img" aria-hidden="true">
+                <span class="title">Han Solo: Una historia de Star Wars</span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
             <div class="details" id="panel-16" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Rogue+One" alt="Escena Rogue One" class="detail-img">
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Han+Solo" alt="Escena Han Solo" class="detail-img">
+                <p><strong>Sinopsis:</strong> Una aventura en los bajos fondos criminales de la galaxia durante los años oscuros del dominio imperial. Relata cómo un joven y temerario piloto llamado Han escapa del planeta Corellia, conoce a su inseparable compañero wookiee Chewbacca, se involucra con el sindicato criminal Crimson Dawn, y le gana el legendario Halcón Milenario al encantador contrabandista Lando Calrissian.</p>
+            </div>
+        </li>
+
+        <li class="item" data-id="17">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-17">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Obi-Wan Kenobi como visto" tabindex="-1">
+                </div>
+                <span class="number">17</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Obi-Wan" alt="Poster Obi-Wan Kenobi" class="item-img" aria-hidden="true">
+                <span class="title">Obi-Wan Kenobi (Serie)</span>
+                <span class="icon-toggle" aria-hidden="true">▼</span>
+            </div>
+            <div class="details" id="panel-17" role="region">
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Obi+Wan+Vader" alt="Escena Obi Wan" class="detail-img">
+                <p><strong>Sinopsis:</strong> Han transcurrido 10 años desde el Episodio III. Obi-Wan vive destrozado emocionalmente, aislado en las arenas de Tatooine y vigilando de lejos a un joven Luke Skywalker. Sin embargo, el secuestro de la pequeña princesa Leia Organa lo obliga a salir de su exilio, atrayendo la atención de los Inquisidores Imperiales y provocando un nuevo y doloroso cara a cara con su antiguo aprendiz, ahora transformado en el aterrador Darth Vader.</p>
+            </div>
+        </li>
+
+        <li class="item" data-id="18">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-18">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Rebels como visto" tabindex="-1">
+                </div>
+                <span class="number">18</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Rebels" alt="Poster Rebels" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars: Rebels (Temporadas 1 a 4)</span>
+                <span class="icon-toggle" aria-hidden="true">▼</span>
+            </div>
+            <div class="details" id="panel-18" role="region">
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Rebels" alt="Escena Rebels" class="detail-img">
+                <p><strong>Sinopsis:</strong> Muestra el nacimiento y consolidación de la Alianza Rebelde pocos años antes del Episodio IV. Seguimos a la tripulación de la nave "El Espíritu" (Ghost), que opera principalmente en el planeta Lothal. El grupo incluye a Kanan Jarrus, un Jedi sobreviviente, y su nuevo aprendiz Ezra Bridger. Juntos enfrentan a Inquisidores, a Darth Vader y al brillante estratega imperial, el Gran Almirante Thrawn. Introduce conceptos profundos de la Fuerza como el "Mundo entre Mundos".</p>
+            </div>
+        </li>
+
+        <li class="item" data-id="19">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-19">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Andor como visto" tabindex="-1">
+                </div>
+                <span class="number">19</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Andor" alt="Poster Andor" class="item-img" aria-hidden="true">
+                <span class="title">Andor (Temporadas 1 y 2)</span>
+                <span class="icon-toggle" aria-hidden="true">▼</span>
+            </div>
+            <div class="details" id="panel-19" role="region">
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Andor" alt="Escena Andor" class="detail-img">
+                <p><strong>Sinopsis:</strong> Un thriller de espionaje político intenso y adulto. Narra la radicalización de Cassian Andor, pasando de ser un cínico ladrón a un comprometido espía de la incipiente Alianza Rebelde. Explora cómo los líderes rebeldes como Mon Mothma financian la revolución desde las sombras de Coruscant, mientras el Imperio ejerce una burocracia opresiva, prisiones crueles y represión ciudadana despiadada.</p>
+            </div>
+        </li>
+
+        <li class="item" data-id="20">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-20">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Rogue One como visto" tabindex="-1">
+                </div>
+                <span class="number">20</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Rogue+One" alt="Poster Rogue One" class="item-img" aria-hidden="true">
+                <span class="title">Rogue One: Una historia de Star Wars</span>
+                <span class="icon-toggle" aria-hidden="true">▼</span>
+            </div>
+            <div class="details" id="panel-20" role="region">
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Rogue+One" alt="Escena Rogue One" class="detail-img">
                 <p><strong>Sinopsis:</strong> La película que une el final del Alzamiento del Imperio con el inicio de la Trilogía Original. Jyn Erso, hija del científico obligado a diseñar la Estrella de la Muerte, se une a Cassian Andor y un grupo de combatientes rebeldes en una misión suicida al planeta Scarif. Su objetivo: infiltrarse en las instalaciones imperiales y robar los planos estructurales de la superarma. La película finaliza minutos antes de la primera escena del Episodio IV.</p>
             </div>
         </li>
 
     </ul>
 
-    <!-- ERA DE LA REBELION -->
+    <!-- ERA 2 -->
     <h2 class="era-title era-rebellion">Era de La Rebelión</h2>
     <ul class="timeline">
-        <li class="item" data-id="17">
-            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-17">
-                <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Episodio IV como visto" tabindex="-1">
-                </div>
-                <span class="number">17</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Episodio+IV" alt="Poster Episodio 4" class="item-img" aria-hidden="true">
-                <span class="title">Star Wars Episodio IV: Una nueva esperanza</span>
-                <span class="icon-toggle" aria-hidden="true">▼</span>
-            </div>
-            <div class="details" id="panel-17" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Nueva+Esperanza" alt="Escena Episodio 4" class="detail-img">
-                <p><strong>Sinopsis:</strong> El joven granjero Luke Skywalker descubre un mensaje oculto en el droide R2-D2 de parte de la Princesa Leia. Guiado por el anciano maestro Jedi Obi-Wan Kenobi y con la ayuda del contrabandista Han Solo, Luke inicia su camino en la Fuerza. Culmina con el atrevido asalto de los cazas X-Wing rebeldes para destruir la colosal Estrella de la Muerte en la Batalla de Yavin.</p>
-            </div>
-        </li>
-        <li class="item" data-id="18">
-            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-18">
-                <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Episodio V como visto" tabindex="-1">
-                </div>
-                <span class="number">18</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Episodio+V" alt="Poster Episodio 5" class="item-img" aria-hidden="true">
-                <span class="title">Star Wars Episodio V: El imperio contraataca</span>
-                <span class="icon-toggle" aria-hidden="true">▼</span>
-            </div>
-            <div class="details" id="panel-18" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Imperio+Contraataca" alt="Escena Episodio 5" class="detail-img">
-                <p><strong>Sinopsis:</strong> Tres años después, la Rebelión sufre una aplastante derrota en el planeta helado Hoth. Mientras Han y Leia huyen siendo perseguidos por la flota imperial y el cazarrecompensas Boba Fett hacia Ciudad Nube, Luke viaja al pantanoso planeta Dagobah para entrenar bajo la tutela del antiguo maestro Yoda. La película marca el punto más oscuro para los héroes, cerrando con una de las mayores revelaciones cinematográficas de la historia entre Luke y Darth Vader.</p>
-            </div>
-        </li>
-        <li class="item" data-id="19">
-            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-19">
-                <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Episodio VI como visto" tabindex="-1">
-                </div>
-                <span class="number">19</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Episodio+VI" alt="Poster Episodio 6" class="item-img" aria-hidden="true">
-                <span class="title">Star Wars Episodio VI: El retorno del jedi</span>
-                <span class="icon-toggle" aria-hidden="true">▼</span>
-            </div>
-            <div class="details" id="panel-19" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Retorno+Jedi" alt="Escena Episodio 6" class="detail-img">
-                <p><strong>Sinopsis:</strong> Tras rescatar a Han Solo del palacio de Jabba el Hutt, los rebeldes descubren que el Imperio está construyendo una segunda y más poderosa Estrella de la Muerte supervisada por el propio Emperador Palpatine. Mientras la flota rebelde y las tropas terrestres (con la ayuda de los Ewoks) atacan en la luna de Endor, Luke se entrega a Vader, creyendo que aún hay luz en su padre, llevando al enfrentamiento final por el destino de la galaxia.</p>
-            </div>
-        </li>
-    </ul>
-
-    <!-- ERA DE LA NUEVA REPUBLICA -->
-    <h2 class="era-title era-republic">Era de La Nueva República (Mandoverse)</h2>
-    <ul class="timeline">
-        <li class="item" data-id="20">
-            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-20">
-                <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar The Mandalorian como visto" tabindex="-1">
-                </div>
-                <span class="number">20</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Mandalorian" alt="Poster The Mandalorian" class="item-img" aria-hidden="true">
-                <span class="title">The Mandalorian (Temporadas 1 y 2)</span>
-                <span class="icon-toggle" aria-hidden="true">▼</span>
-            </div>
-            <div class="details" id="panel-20" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Mandalorian" alt="Escena The Mandalorian" class="detail-img">
-                <p><strong>Sinopsis:</strong> Ambientada 5 años después de la caída del Imperio en Endor. La Nueva República gobierna el centro de la galaxia, pero en los bordes exteriores reina la anarquía. Din Djarin, un solitario y estricto cazarrecompensas mandaloriano, recibe un encargo de remanentes imperiales, pero termina rompiendo sus reglas para proteger a su objetivo: un pequeño y misterioso niño sensible a la Fuerza (Grogu), huyendo del temible Moff Gideon.</p>
-            </div>
-        </li>
         <li class="item" data-id="21">
             <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-21">
                 <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar El libro de Boba Fett como visto" tabindex="-1">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Episodio IV como visto" tabindex="-1">
                 </div>
                 <span class="number">21</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Boba+Fett" alt="Poster Boba Fett" class="item-img" aria-hidden="true">
-                <span class="title">El libro de Boba Fett (Serie)</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Episodio+IV" alt="Poster Episodio 4" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars Episodio IV: Una nueva esperanza</span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
             <div class="details" id="panel-21" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Boba+Fett" alt="Escena Boba Fett" class="detail-img">
-                <p><strong>Sinopsis:</strong> Ocurre temporalmente justo en medio del final de la Temporada 2 de The Mandalorian y el inicio de la Temporada 3. Boba Fett, tras sobrevivir al pozo del Sarlacc, intenta reclamar el imperio criminal de Jabba el Hutt en Tatooine junto a Fennec Shand. Los últimos episodios de esta serie funcionan casi como una "Temporada 2.5" de The Mandalorian, reuniendo a Mando y Grogu tras su breve separación con Luke Skywalker.</p>
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Nueva+Esperanza" alt="Escena Episodio 4" class="detail-img">
+                <p><strong>Sinopsis:</strong> El joven granjero Luke Skywalker descubre un mensaje oculto en el droide R2-D2 de parte de la Princesa Leia. Guiado por el anciano maestro Jedi Obi-Wan Kenobi y con la ayuda del contrabandista Han Solo, Luke inicia su camino en la Fuerza. Culmina con el atrevido asalto de los cazas X-Wing rebeldes para destruir la colosal Estrella de la Muerte en la Batalla de Yavin.</p>
             </div>
         </li>
         <li class="item" data-id="22">
             <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-22">
                 <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Mandalorian T3 como visto" tabindex="-1">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Episodio V como visto" tabindex="-1">
                 </div>
                 <span class="number">22</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Mandalorian+T3" alt="Poster Mandalorian T3" class="item-img" aria-hidden="true">
-                <span class="title">The Mandalorian (Temporada 3)</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Episodio+V" alt="Poster Episodio 5" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars Episodio V: El imperio contraataca</span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
             <div class="details" id="panel-22" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Mandalorian+T3" alt="Escena Mandalorian T3" class="detail-img">
-                <p><strong>Sinopsis:</strong> Tras reunirse con Grogu, Din Djarin busca la redención en las Aguas Vivas de su destruido planeta natal. La historia amplía su escala política y épica, uniéndose a Bo-Katan Kryze con el ambicioso objetivo de reunificar a todos los clanes mandalorianos dispersos en la galaxia y recuperar de una vez por todas la soberanía de Mandalore frente a una facción imperial que se niega a morir.</p>
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Imperio+Contraataca" alt="Escena Episodio 5" class="detail-img">
+                <p><strong>Sinopsis:</strong> Tres años después, la Rebelión sufre una aplastante derrota en el planeta helado Hoth. Mientras Han y Leia huyen siendo perseguidos por la flota imperial y el cazarrecompensas Boba Fett hacia Ciudad Nube, Luke viaja al pantanoso planeta Dagobah para entrenar bajo la tutela del antiguo maestro Yoda. La película marca el punto más oscuro para los héroes, cerrando con una de las mayores revelaciones cinematográficas de la historia entre Luke y Darth Vader.</p>
             </div>
         </li>
         <li class="item" data-id="23">
             <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-23">
                 <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Ahsoka como visto" tabindex="-1">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Episodio VI como visto" tabindex="-1">
                 </div>
                 <span class="number">23</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Ahsoka" alt="Poster Ahsoka" class="item-img" aria-hidden="true">
-                <span class="title">Ahsoka (Serie)</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Episodio+VI" alt="Poster Episodio 6" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars Episodio VI: El retorno del jedi</span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
             <div class="details" id="panel-23" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Ahsoka+Serie" alt="Escena Ahsoka Serie" class="detail-img">
-                <p><strong>Sinopsis:</strong> Ahsoka Tano, la antigua aprendiz de Anakin Skywalker convertida en una maestra gris, se reúne con la tripulación de <em>Rebels</em> (Hera Syndulla y Sabine Wren). Deben evitar que fuerzas oscuras aliadas con las antiguas brujas de Dathomir traigan de regreso al Gran Almirante Thrawn desde una galaxia distante, al mismo tiempo que intentan rescatar a su viejo amigo perdido, Ezra Bridger.</p>
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Retorno+Jedi" alt="Escena Episodio 6" class="detail-img">
+                <p><strong>Sinopsis:</strong> Tras rescatar a Han Solo del palacio de Jabba el Hutt, los rebeldes descubren que el Imperio está construyendo una segunda y más poderosa Estrella de la Muerte supervisada por el propio Emperador Palpatine. Mientras la flota rebelde y las tropas terrestres (con la ayuda de los Ewoks) atacan en la luna de Endor, Luke se entrega a Vader, creyendo que aún hay luz en su padre, llevando al enfrentamiento final por el destino de la galaxia.</p>
             </div>
         </li>
+    </ul>
+
+    <!-- ERA 3 -->
+    <h2 class="era-title era-republic">Era de La Nueva República (Mandoverse y Secuelas)</h2>
+    <ul class="timeline">
         <li class="item" data-id="24">
             <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-24">
                 <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Tripulación Perdida como visto" tabindex="-1">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar The Mandalorian como visto" tabindex="-1">
                 </div>
                 <span class="number">24</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Skeleton+Crew" alt="Poster Tripulación Perdida" class="item-img" aria-hidden="true">
-                <span class="title">Star Wars: Tripulación perdida (Skeleton Crew)</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Mandalorian" alt="Poster The Mandalorian" class="item-img" aria-hidden="true">
+                <span class="title">The Mandalorian (Temporadas 1 y 2)</span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
             <div class="details" id="panel-24" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Tripulacion+Perdida" alt="Escena Tripulacion Perdida" class="detail-img">
-                <p><strong>Sinopsis:</strong> Una historia de aventuras y misterio con toques clásicos de los años 80, ambientada en paralelo a The Mandalorian y Ahsoka. Sigue a un grupo de niños que, tras descubrir un antiguo secreto en su aparentemente tranquilo y pacífico planeta de la Nueva República, terminan perdidos accidentalmente en la inmensidad y los peligros del universo, cruzándose con piratas y seres misteriosos, como el usuario de la Fuerza, Jod Na Nawood.</p>
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Mandalorian" alt="Escena The Mandalorian" class="detail-img">
+                <p><strong>Sinopsis:</strong> Ambientada 5 años después de la caída del Imperio en Endor. La Nueva República gobierna el centro de la galaxia, pero en los bordes exteriores reina la anarquía. Din Djarin, un solitario y estricto cazarrecompensas mandaloriano, recibe un encargo de remanentes imperiales, pero termina rompiendo sus reglas para proteger a su objetivo: un pequeño y misterioso niño sensible a la Fuerza (Grogu), huyendo del temible Moff Gideon.</p>
             </div>
         </li>
         <li class="item" data-id="25">
             <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-25">
                 <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar The Mandalorian y Grogu como visto" tabindex="-1">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar El libro de Boba Fett como visto" tabindex="-1">
                 </div>
                 <span class="number">25</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Mando+y+Grogu" alt="Poster Mando y Grogu" class="item-img" aria-hidden="true">
-                <span class="title">The Mandalorian y Grogu (Película)</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Boba+Fett" alt="Poster Boba Fett" class="item-img" aria-hidden="true">
+                <span class="title">El libro de Boba Fett (Serie)</span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
             <div class="details" id="panel-25" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Mando+y+Grogu" alt="Escena Pelicula Mandalorian" class="detail-img">
-                <p><strong>Sinopsis:</strong> Prevista para saltar de la televisión a la gran pantalla cinematográfica. Promete ser el clímax de las historias cruzadas tejidas durante todas las series del Mandoverse, uniendo fuerzas contra la creciente amenaza imperial del Remanente en las Sombras y los planes estratégicos del recién regresado Gran Almirante Thrawn.</p>
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Boba+Fett" alt="Escena Boba Fett" class="detail-img">
+                <p><strong>Sinopsis:</strong> Ocurre temporalmente justo en medio del final de la Temporada 2 de The Mandalorian y el inicio de la Temporada 3. Boba Fett, tras sobrevivir al pozo del Sarlacc, intenta reclamar el imperio criminal de Jabba el Hutt en Tatooine junto a Fennec Shand. Los últimos episodios de esta serie funcionan casi como una "Temporada 2.5" de The Mandalorian, reuniendo a Mando y Grogu tras su breve separación con Luke Skywalker.</p>
             </div>
         </li>
         <li class="item" data-id="26">
             <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-26">
                 <div class="checkbox-wrapper">
-                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Starfighter como visto" tabindex="-1">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Mandalorian T3 como visto" tabindex="-1">
                 </div>
                 <span class="number">26</span>
-                <img src="https://placehold.co/90x130/1c2331/f57c00?text=Starfighter" alt="Poster Starfighter" class="item-img" aria-hidden="true">
-                <span class="title">Starfighter (2027)</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Mandalorian+T3" alt="Poster Mandalorian T3" class="item-img" aria-hidden="true">
+                <span class="title">The Mandalorian (Temporada 3)</span>
                 <span class="icon-toggle" aria-hidden="true">▼</span>
             </div>
             <div class="details" id="panel-26" role="region">
-                <img src="https://placehold.co/800x300/1c2331/f57c00?text=Escena+Starfighter" alt="Escena Starfighter" class="detail-img">
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Mandalorian+T3" alt="Escena Mandalorian T3" class="detail-img">
+                <p><strong>Sinopsis:</strong> Tras reunirse con Grogu, Din Djarin busca la redención en las Aguas Vivas de su destruido planeta natal. La historia amplía su escala política y épica, uniéndose a Bo-Katan Kryze con el ambicioso objetivo de reunificar a todos los clanes mandalorianos dispersos en la galaxia y recuperar de una vez por todas la soberanía de Mandalore frente a una facción imperial que se niega a morir.</p>
+            </div>
+        </li>
+        <li class="item" data-id="27">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-27">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Ahsoka como visto" tabindex="-1">
+                </div>
+                <span class="number">27</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Ahsoka" alt="Poster Ahsoka" class="item-img" aria-hidden="true">
+                <span class="title">Ahsoka (Serie)</span>
+                <span class="icon-toggle" aria-hidden="true">▼</span>
+            </div>
+            <div class="details" id="panel-27" role="region">
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Ahsoka+Serie" alt="Escena Ahsoka Serie" class="detail-img">
+                <p><strong>Sinopsis:</strong> Ahsoka Tano, la antigua aprendiz de Anakin Skywalker convertida en una maestra gris, se reúne con la tripulación de <em>Rebels</em> (Hera Syndulla y Sabine Wren). Deben evitar que fuerzas oscuras aliadas con las antiguas brujas de Dathomir traigan de regreso al Gran Almirante Thrawn desde una galaxia distante, al mismo tiempo que intentan rescatar a su viejo amigo perdido, Ezra Bridger.</p>
+            </div>
+        </li>
+        <li class="item" data-id="28">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-28">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Tripulación Perdida como visto" tabindex="-1">
+                </div>
+                <span class="number">28</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Skeleton+Crew" alt="Poster Tripulación Perdida" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars: Tripulación perdida (Skeleton Crew)</span>
+                <span class="icon-toggle" aria-hidden="true">▼</span>
+            </div>
+            <div class="details" id="panel-28" role="region">
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Tripulacion+Perdida" alt="Escena Tripulacion Perdida" class="detail-img">
+                <p><strong>Sinopsis:</strong> Una historia de aventuras y misterio con toques clásicos de los años 80, ambientada en paralelo a The Mandalorian y Ahsoka. Sigue a un grupo de niños que, tras descubrir un antiguo secreto en su aparentemente tranquilo y pacífico planeta de la Nueva República, terminan perdidos accidentalmente en la inmensidad y los peligros del universo, cruzándose con piratas y seres misteriosos, como el usuario de la Fuerza, Jod Na Nawood.</p>
+            </div>
+        </li>
+        <li class="item" data-id="29">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-29">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar The Mandalorian y Grogu como visto" tabindex="-1">
+                </div>
+                <span class="number">29</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Mando+y+Grogu" alt="Poster Mando y Grogu" class="item-img" aria-hidden="true">
+                <span class="title">The Mandalorian y Grogu (Película)</span>
+                <span class="icon-toggle" aria-hidden="true">▼</span>
+            </div>
+            <div class="details" id="panel-29" role="region">
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Mando+y+Grogu" alt="Escena Pelicula Mandalorian" class="detail-img">
+                <p><strong>Sinopsis:</strong> Prevista para saltar de la televisión a la gran pantalla cinematográfica. Promete ser el clímax de las historias cruzadas tejidas durante todas las series del Mandoverse, uniendo fuerzas contra la creciente amenaza imperial del Remanente en las Sombras y los planes estratégicos del recién regresado Gran Almirante Thrawn.</p>
+            </div>
+        </li>
+        <li class="item" data-id="30">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-30">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Resistance como visto" tabindex="-1">
+                </div>
+                <span class="number">30</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Resistance" alt="Poster Resistance" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars: Resistance (Serie)</span>
+                <span class="icon-toggle" aria-hidden="true">▼</span>
+            </div>
+            <div class="details" id="panel-30" role="region">
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Resistance" alt="Escena Resistance" class="detail-img">
+                <p><strong>Sinopsis:</strong> El joven piloto Kazuda Xiono es reclutado por la Resistencia para espiar a la Primera Orden. Ambientada poco antes de <em>El despertar de la Fuerza</em>.</p>
+            </div>
+        </li>
+        <li class="item" data-id="31">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-31">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Episodio VII como visto" tabindex="-1">
+                </div>
+                <span class="number">31</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Episodio+VII" alt="Poster Episodio 7" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars Episodio VII: El despertar de la Fuerza <span class="warning-badge">⚠️ Aviso</span></span>
+                <span class="icon-toggle" aria-hidden="true">▼</span>
+            </div>
+            <div class="details" id="panel-31" role="region">
+                <div class="warning-box">
+                    <strong>⚠️ Aviso importante:</strong> Esta película no conecta con la historia principal de esta cronología. La trilogía de secuelas se considera un relato aparte que no sigue la línea argumental de las seis primeras entregas.
+                </div>
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Despertar+Fuerza" alt="Escena Episodio 7" class="detail-img">
+                <p><strong>Sinopsis:</strong> La Resistencia busca a Luke Skywalker. Rey, una chatarrera de Jakku, descubre que es sensible a la Fuerza y se enfrenta a Kylo Ren y la Primera Orden.</p>
+            </div>
+        </li>
+        <li class="item" data-id="32">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-32">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Episodio VIII como visto" tabindex="-1">
+                </div>
+                <span class="number">32</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Episodio+VIII" alt="Poster Episodio 8" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars Episodio VIII: Los últimos Jedi <span class="warning-badge">⚠️ Aviso</span></span>
+                <span class="icon-toggle" aria-hidden="true">▼</span>
+            </div>
+            <div class="details" id="panel-32" role="region">
+                <div class="warning-box">
+                    <strong>⚠️ Aviso importante:</strong> Esta película no conecta con la historia principal de esta cronología. La trilogía de secuelas se considera un relato aparte que no sigue la línea argumental de las seis primeras entregas.
+                </div>
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Ultimos+Jedi" alt="Escena Episodio 8" class="detail-img">
+                <p><strong>Sinopsis:</strong> Rey entrena con Luke Skywalker mientras la Resistencia es perseguida por la Primera Orden. El pasado de Kylo Ren y Luke se revela, y la flota rebelde queda reducida a unos pocos.</p>
+            </div>
+        </li>
+        <li class="item" data-id="33">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-33">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Episodio IX como visto" tabindex="-1">
+                </div>
+                <span class="number">33</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Episodio+IX" alt="Poster Episodio 9" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars Episodio IX: El ascenso de Skywalker <span class="warning-badge">⚠️ Aviso</span></span>
+                <span class="icon-toggle" aria-hidden="true">▼</span>
+            </div>
+            <div class="details" id="panel-33" role="region">
+                <div class="warning-box">
+                    <strong>⚠️ Aviso importante:</strong> Esta película no conecta con la historia principal de esta cronología. La trilogía de secuelas se considera un relato aparte que no sigue la línea argumental de las seis primeras entregas.
+                </div>
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Ascenso+Skywalker" alt="Escena Episodio 9" class="detail-img">
+                <p><strong>Sinopsis:</strong> El enfrentamiento final entre Rey y Kylo Ren, con el regreso del Emperador Palpatine. La saga Skywalker llega a su conclusión.</p>
+            </div>
+        </li>
+        <li class="item" data-id="34">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-34">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Starfighter como visto" tabindex="-1">
+                </div>
+                <span class="number">34</span>
+                <img src="https://placehold.co/90x130/111827/f5a623?text=Starfighter" alt="Poster Starfighter" class="item-img" aria-hidden="true">
+                <span class="title">Starfighter (2027)</span>
+                <span class="icon-toggle" aria-hidden="true">▼</span>
+            </div>
+            <div class="details" id="panel-34" role="region">
+                <img src="https://placehold.co/800x300/111827/f5a623?text=Escena+Starfighter" alt="Escena Starfighter" class="detail-img">
                 <p><strong>Sinopsis:</strong> Proyecto cinematográfico en desarrollo para el año 2027. Actualmente se desconoce la trama exacta, pero se perfila como un relato que involucrará batallas espaciales y pilotos de cazas estelares. Su conexión en tu canon personal quedará pendiente a la espera de que se publiquen más detalles sobre su marco temporal oficial.</p>
             </div>
         </li>
     </ul>
 
-    <footer>
-        <p>Que la Fuerza te acompañe.</p>
-    </footer>
+    <!-- ERA 4 -->
+    <h2 class="era-title era-legends">Leyendas (No Canon)</h2>
+    <ul class="timeline">
+        <li class="item" data-id="35">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-35">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Droids como visto" tabindex="-1">
+                </div>
+                <span class="number">35</span>
+                <img src="https://placehold.co/90x130/111827/7e57c2?text=Droids" alt="Poster Droids" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars: Droids (Serie animada, 1985) <span class="legend-badge">Leyendas</span></span>
+                <span class="icon-toggle" aria-hidden="true">▼</span>
+            </div>
+            <div class="details" id="panel-35" role="region">
+                <img src="https://placehold.co/800x300/111827/7e57c2?text=Escena+Droids" alt="Escena Droids" class="detail-img">
+                <p><strong>Contexto:</strong> Serie animada clásica que sigue las aventuras de R2-D2 y C-3PO antes de conocer a Luke Skywalker. Actualmente considerada no canon (Leyendas).</p>
+            </div>
+        </li>
+        <li class="item" data-id="36">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-36">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Ewoks como visto" tabindex="-1">
+                </div>
+                <span class="number">36</span>
+                <img src="https://placehold.co/90x130/111827/7e57c2?text=Ewoks" alt="Poster Ewoks" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars: Ewoks (Serie animada, 1985) <span class="legend-badge">Leyendas</span></span>
+                <span class="icon-toggle" aria-hidden="true">▼</span>
+            </div>
+            <div class="details" id="panel-36" role="region">
+                <img src="https://placehold.co/800x300/111827/7e57c2?text=Escena+Ewoks" alt="Escena Ewoks" class="detail-img">
+                <p><strong>Contexto:</strong> Serie animada que narra las aventuras de los Ewoks en la luna de Endor antes de los eventos de <em>El retorno del Jedi</em>. No canon.</p>
+            </div>
+        </li>
+        <li class="item" data-id="37">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-37">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Forces of Destiny como visto" tabindex="-1">
+                </div>
+                <span class="number">37</span>
+                <img src="https://placehold.co/90x130/111827/7e57c2?text=Forces+Destiny" alt="Poster Forces of Destiny" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars: Forces of Destiny (Micro-serie) <span class="legend-badge">Leyendas</span></span>
+                <span class="icon-toggle" aria-hidden="true">▼</span>
+            </div>
+            <div class="details" id="panel-37" role="region">
+                <img src="https://placehold.co/800x300/111827/7e57c2?text=Escena+Forces+Destiny" alt="Escena Forces of Destiny" class="detail-img">
+                <p><strong>Contexto:</strong> Serie de cortos animados que celebran a los héroes icónicos de Star Wars (Rey, Ahsoka, Leia, Jyn) en diferentes épocas. No canon.</p>
+            </div>
+        </li>
+        <li class="item" data-id="38">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-38">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Visions como visto" tabindex="-1">
+                </div>
+                <span class="number">38</span>
+                <img src="https://placehold.co/90x130/111827/7e57c2?text=Visions" alt="Poster Visions" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars: Visions (Serie de antología) <span class="legend-badge">Leyendas</span></span>
+                <span class="icon-toggle" aria-hidden="true">▼</span>
+            </div>
+            <div class="details" id="panel-38" role="region">
+                <img src="https://placehold.co/800x300/111827/7e57c2?text=Escena+Visions" alt="Escena Visions" class="detail-img">
+                <p><strong>Contexto:</strong> Colección de cortos animados realizados por estudios de anime japoneses, con interpretaciones únicas y no canon del universo Star Wars.</p>
+            </div>
+        </li>
+        <li class="item" data-id="39">
+            <div class="item-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-39">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="seen-checkbox" aria-label="Marcar Clone Wars 2003 como visto" tabindex="-1">
+                </div>
+                <span class="number">39</span>
+                <img src="https://placehold.co/90x130/111827/7e57c2?text=Clone+Wars+2003" alt="Poster Clone Wars 2003" class="item-img" aria-hidden="true">
+                <span class="title">Star Wars: Clone Wars (Micro-serie animada, 2003) <span class="legend-badge">Leyendas</span></span>
+                <span class="icon-toggle" aria-hidden="true">▼</span>
+            </div>
+            <div class="details" id="panel-39" role="region">
+                <img src="https://placehold.co/800x300/111827/7e57c2?text=Escena+Clone+Wars+2003" alt="Escena Clone Wars 2003" class="detail-img">
+                <p><strong>Contexto:</strong> Serie de micro-episodios animados que narran las Guerras Clon entre los Episodios II y III. No canon.</p>
+            </div>
+        </li>
+    </ul>
 </div>
 
+<!-- ============================================
+     FOOTER
+     ============================================ -->
+<footer class="footer">
+    <div class="footer-content">
+        <div>
+            <div class="footer-brand">Archivos Jedi</div>
+            <p class="footer-desc">
+                Tu fuente definitiva de conocimiento sobre el universo de Star Wars. Una galaxia de historias te espera.
+            </p>
+        </div>
+        <div>
+            <h4 class="footer-heading">Explorar</h4>
+            <ul class="footer-links">
+                <li><a href="index.html">Cronología</a></li>
+                <li><a href="historias.html#historias">Historias</a></li>
+                <li><a href="historias.html#personajes">Personajes</a></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="footer-heading">Recursos</h4>
+            <ul class="footer-links">
+                <li><a href="https://swapi.dev/" target="_blank" rel="noopener">SWAPI</a></li>
+                <li><a href="https://starwars.fandom.com/" target="_blank" rel="noopener">Wookieepedia</a></li>
+                <li><a href="https://www.starwars.com/" target="_blank" rel="noopener">StarWars.com</a></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="footer-heading">Legal</h4>
+            <ul class="footer-links">
+                <li><a href="#">Aviso Legal</a></li>
+                <li><a href="#">Privacidad</a></li>
+                <li><a href="#">Contacto</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2025 Archivos Jedi. Sitio no oficial creado por y para fans.</p>
+        <p class="footer-force">✦ Que la Fuerza te acompañe ✦</p>
+    </div>
+</footer>
+
 <script>
-    // ELEMENTOS DOM
+    /* ============================================
+       ESTRELLAS ANIMADAS
+       ============================================ */
+    function generateStars() {
+        const starfield = document.getElementById('starfield');
+        if (!starfield) return;
+        const starCount = 150;
+        let html = '';
+        for (let i = 0; i < starCount; i++) {
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+            const delay = Math.random() * 4;
+            const duration = 3 + Math.random() * 4;
+            const size = Math.random() > 0.9 ? 3 : 2;
+            html += `<div class="star" style="left:${x}%;top:${y}%;animation-delay:${delay}s;animation-duration:${duration}s;width:${size}px;height:${size}px;"></div>`;
+        }
+        starfield.innerHTML = html;
+    }
+
+    /* ============================================
+       ACORDEÓN + PROGRESO
+       ============================================ */
     const itemHeaders = document.querySelectorAll('.item-header');
     const checkboxes = document.querySelectorAll('.seen-checkbox');
     const items = document.querySelectorAll('.item');
     const progressText = document.getElementById('progress-text');
     const totalItems = items.length;
 
-    // FUNCIONES DEL ACORDEÓN (Click y Teclado para Accesibilidad)
     const toggleAccordion = (header) => {
         const parentItem = header.parentElement;
         const isExpanded = header.getAttribute('aria-expanded') === 'true';
-        
-        // Alternar el estado ARIA y la clase activa visual
         header.setAttribute('aria-expanded', !isExpanded);
         parentItem.classList.toggle('active');
     };
 
     itemHeaders.forEach(header => {
-        // Evento Mouse Click
         header.addEventListener('click', (e) => {
-            // Prevenir que haga toggle si hemos hecho click en el checkbox directamente
-            if (e.target.classList.contains('seen-checkbox')) {
-                return;
-            }
+            if (e.target.classList.contains('seen-checkbox')) return;
             toggleAccordion(header);
         });
-
-        // Evento Teclado (Enter y Espacio) para accesibilidad (A11y)
         header.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -894,10 +1681,9 @@
         });
     });
 
-    // LÓGICA DE PROGRESO Y LOCALSTORAGE
     const updateProgressText = () => {
         const seenCount = document.querySelectorAll('.item.seen').length;
-        progressText.textContent = `${seenCount}/${totalItems}`;
+        if (progressText) progressText.textContent = `${seenCount}/${totalItems}`;
     };
 
     const saveProgress = () => {
@@ -923,28 +1709,50 @@
         updateProgressText();
     };
 
-    // Event listener para los checkboxes
     checkboxes.forEach(checkbox => {
         checkbox.addEventListener('change', (e) => {
             const item = e.target.closest('.item');
-            if (e.target.checked) {
-                item.classList.add('seen');
-            } else {
-                item.classList.remove('seen');
-            }
+            if (e.target.checked) item.classList.add('seen');
+            else item.classList.remove('seen');
             saveProgress();
         });
-        
-        // Evitar que pulsar Enter/Espacio en el checkbox active el acordeón padre
         checkbox.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.stopPropagation();
-            }
+            if (e.key === 'Enter' || e.key === ' ') e.stopPropagation();
         });
     });
 
-    // Cargar datos al iniciar
-    document.addEventListener('DOMContentLoaded', loadProgress);
+    /* ============================================
+       NAVBAR + MENÚ MÓVIL
+       ============================================ */
+    document.addEventListener('DOMContentLoaded', () => {
+        const navbar = document.getElementById('navbar');
+        const navToggle = document.getElementById('navToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        window.addEventListener('scroll', () => {
+            if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        if (navToggle && navLinks) {
+            navToggle.addEventListener('click', () => {
+                const isOpen = navLinks.classList.toggle('open');
+                navToggle.setAttribute('aria-expanded', isOpen);
+                navToggle.textContent = isOpen ? '✕' : '☰';
+            });
+
+            navLinks.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    navLinks.classList.remove('open');
+                    navToggle.setAttribute('aria-expanded', 'false');
+                    navToggle.textContent = '☰';
+                });
+            });
+        }
+
+        // Cargar progreso y generar estrellas
+        loadProgress();
+        generateStars();
+    });
 </script>
 
 </body>
